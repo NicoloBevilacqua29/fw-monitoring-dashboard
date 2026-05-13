@@ -684,102 +684,55 @@
 
 <script>
 // ── DATA STORE ──
-let alerts = JSON.parse(localStorage.getItem('mw_alerts') || '[]');
+let alerts = [];
 let currentFilter = 'all';
+let dashboardLastUpdate = '—';
 
-// Pre-load demo data from screenshots if empty
-if (alerts.length === 0) {
-  alerts = [
-    {
-      id: Date.now() - 5000,
-      type: 'failed',
-      title: 'ALERT REPORT 10.2 FAILED',
-      timestamp: '13/05/2026 07:00 UTC',
-      notes: '',
-      workflows: [
-        { source: 'AWS_COEAI', name: 'WF_ANTI_CHURN_ACTIONS', date: '12-MAY-26' },
-        { source: 'AWS_COEAI', name: 'WF_CHURN_REDEMPTION_INFERENCES', date: '12-MAY-26' },
-        { source: 'AWS_COEAI', name: 'WF_WIRELINE_UPSELL_PROPENSITY_CORE', date: '12-MAY-26' },
-        { source: 'AWS_COEAI', name: 'WF_CUSTOMER_SEGMENTATION_UPSELL_OFFERS', date: '12-MAY-26' },
-        { source: 'AWS_COEAI', name: 'WF_WIRELINE_UPSELL_PROPENSITY_CLUSTER_FEATURES', date: '12-MAY-26' },
-        { source: 'AWS_COEAI', name: 'WF_MOBILE_UPSELLING_PROPENSITY_CORE', date: '12-MAY-26' },
-        { source: 'AWS_COEAI', name: 'WF_MOBILE_UPSELLING_PROPENSITY_CLUSTER_FEATURES', date: '12-MAY-26' },
-        { source: 'CNI_NIS', name: 'WF_ST_PART_VPLS_P2MP_FWA', date: '30-APR-26' },
-      ]
-    },
-    {
-      id: Date.now() - 4000,
-      type: 'delay',
-      title: 'CDC DELAY > 4 ORE',
-      timestamp: '13/05/2026 07:00 UTC',
-      notes: '',
-      workflows: [
-        { source: 'NETDB', name: 'OTHER_NETDB 10.2 hotfix', date: '2026-May-11 18:03:39' },
-      ]
-    },
-    {
-      id: Date.now() - 3000,
-      type: 'failed',
-      title: 'ALERT REPORT 9.6 FAILED',
-      timestamp: '13/05/2026 10:01 UTC',
-      notes: 'Sono stati rilevati errori',
-      workflows: [
-        { source: 'MDB', name: 'WF_MDB_QLIK_EVENT | ST_FAILED1', date: '20260511 18:00:41' },
-        { source: 'MDB', name: 'WF_MDB_QLIK_EVENT | QlikEvent_FAILED', date: '20260511 18:00:51' },
-        { source: 'GRN', name: 'WF_GRN_UID_FASTBE_FROM_TBS | s_M_GRN_PROC', date: '20260512 12:01:12' },
-        { source: 'EDH', name: 'WF_TNO_PAM_ATTIVITA | s_M_AGGIORNAMENTO_ELABORAZIONE_EDH_FAILED', date: '20260512 18:06:21' },
-        { source: 'EDH', name: 'wf_download_AccountTeamMember | s_read_AccountTeamMember', date: '20260513 10:04:06' },
-        { source: 'EDH', name: 'wf_download_OpportunityCompetitor | s_read_OpportunityCompetitor', date: '20260513 10:06:07' },
-        { source: 'EDH', name: 'wf_download_CatalogItemDiscount | s_read_CatalogItemDiscount', date: '20260513 10:08:06' },
-      ]
-    },
-    {
-      id: Date.now() - 2000,
-      type: 'delay',
-      title: 'CDC DELAY > 4 ORE',
-      timestamp: '13/05/2026 10:00 UTC',
-      notes: 'Workflow in ritardo',
-      workflows: [
-        { source: 'NETDB', name: 'OTHER_NETDB 10.2 hotfix', date: '2026-May-11 18:03:39' },
-        { source: 'OSS_GPON', name: 'STS_CDC 9.6', date: '2026-May-12 20:01:04' },
-        { source: 'WF_m_CPQ', name: 'to_CPQ_STG sulla 951', date: '2026-May-13 04:51:13' },
-        { source: 'WF_m_CPQ', name: 'to_CPQ_STG sulla 951', date: '2026-May-13 05:30:12' },
-        { source: 'WF_m_CPQ', name: 'to_CPQ_STG sulla 951', date: '2026-May-13 05:55:25' },
-      ]
-    },
-    {
-      id: Date.now() - 1000,
-      type: 'running',
-      title: 'WF_DIM_ORDER_LA ancora in RUNNING',
-      timestamp: '13/05/2026 09:00 UTC',
-      notes: 'Il workflow è ancora in esecuzione.',
-      workflows: []
-    },
-    {
-      id: Date.now() - 500,
-      type: 'ok',
-      title: 'WF_DIM_GENERAL_LA completato',
-      timestamp: '13/05/2026 09:00 UTC',
-      notes: 'Il workflow è terminato correttamente.',
-      workflows: []
-    },
-  ];
-  save();
+async function loadData() {
+  try {
+    const response = await fetch('dashboard-data.json?ts=' + Date.now());
+
+    if (!response.ok) {
+      throw new Error('HTTP ' + response.status);
+    }
+
+    const data = await response.json();
+
+    alerts = data.alerts || [];
+    dashboardLastUpdate = data.lastUpdate || '—';
+
+    render();
+  } catch (error) {
+    console.error('Errore caricamento dashboard-data.json:', error);
+
+    const container = document.getElementById('alertsContainer');
+    if (container) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">⚠️</div>
+          <p>Errore caricamento dashboard-data.json</p>
+        </div>`;
+    }
+  }
 }
 
 // ── HELPERS ──
-function save() {
-  localStorage.setItem('mw_alerts', JSON.stringify(alerts));
-}
-
 function typeConfig(t) {
   const c = {
-    failed:  { label: '🔴 REPORT FAILED',    cls: 'failed', dotCls: 'red',    tagCls: 'red',    barColor: 'var(--accent-red)' },
-    delay:   { label: '🟠 CDC DELAY > 4 ORE', cls: 'delay',  dotCls: 'orange', tagCls: 'orange', barColor: 'var(--accent-orange)' },
-    running: { label: '🟡 WF IN RUNNING',     cls: 'running',dotCls: 'yellow', tagCls: 'yellow', barColor: 'var(--accent-yellow)' },
-    ok:      { label: '🟢 COMPLETATO OK',     cls: 'ok',     dotCls: 'green',  tagCls: 'green',  barColor: 'var(--accent-green)' },
+    failed:  { label: '🔴 REPORT FAILED',     cls: 'failed',  dotCls: 'red',    tagCls: 'red',    barColor: 'var(--accent-red)' },
+    delay:   { label: '🟠 CDC DELAY > 4 ORE', cls: 'delay',   dotCls: 'orange', tagCls: 'orange', barColor: 'var(--accent-orange)' },
+    running: { label: '🟡 WF IN RUNNING',     cls: 'running', dotCls: 'yellow', tagCls: 'yellow', barColor: 'var(--accent-yellow)' },
+    ok:      { label: '🟢 COMPLETATO OK',     cls: 'ok',      dotCls: 'green',  tagCls: 'green',  barColor: 'var(--accent-green)' },
   };
   return c[t] || c.failed;
+}
+
+function escHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 
 // ── CLOCK ──
@@ -797,13 +750,11 @@ function render() {
     ? alerts
     : alerts.filter(a => a.type === currentFilter);
 
-  // KPI
   document.getElementById('kpiFailedReports').textContent = alerts.filter(a => a.type === 'failed').length;
   document.getElementById('kpiDelayed').textContent       = alerts.filter(a => a.type === 'delay').length;
   document.getElementById('kpiRunning').textContent       = alerts.filter(a => a.type === 'running').length;
   document.getElementById('kpiOk').textContent            = alerts.filter(a => a.type === 'ok').length;
 
-  // Alerts
   const container = document.getElementById('alertsContainer');
   container.innerHTML = '';
 
@@ -816,7 +767,9 @@ function render() {
   } else {
     [...filtered].reverse().forEach(alert => {
       const cfg = typeConfig(alert.type);
-      const wfRows = alert.workflows.map(wf => `
+      const workflows = alert.workflows || [];
+
+      const wfRows = workflows.map(wf => `
         <div class="wf-row ${alert.type}">
           <div class="wf-source">${escHtml(wf.source)}</div>
           <div class="wf-name">${escHtml(wf.name)}</div>
@@ -827,13 +780,12 @@ function render() {
         ? `<div style="font-size:11px; color:var(--text-dim); margin-bottom:8px; font-style:italic;">${escHtml(alert.notes)}</div>`
         : '';
 
-      const wfSection = alert.workflows.length > 0 ? `
-        <div class="wf-list">${wfRows}</div>
-      ` : '';
+      const wfSection = workflows.length > 0
+        ? `<div class="wf-list">${wfRows}</div>`
+        : '';
 
       const card = document.createElement('div');
       card.className = 'alert-card';
-      card.style.animationDelay = '0ms';
       card.innerHTML = `
         <div class="alert-header">
           <div class="alert-type ${cfg.cls}">
@@ -842,27 +794,27 @@ function render() {
           </div>
           <div style="display:flex;align-items:center;gap:4px;">
             <div class="alert-ts">${escHtml(alert.timestamp)}</div>
-            <button class="btn-delete" onclick="deleteAlert(${alert.id})" title="Elimina">✕</button>
           </div>
         </div>
         <div class="alert-body">
           ${notesHtml}
           ${wfSection}
-          ${alert.workflows.length > 0 ? `<div style="margin-top:8px; font-size:10px; color:var(--text-muted);">${alert.workflows.length} workflow</div>` : ''}
+          ${workflows.length > 0 ? `<div style="margin-top:8px; font-size:10px; color:var(--text-muted);">${workflows.length} workflow</div>` : ''}
         </div>`;
+
       container.appendChild(card);
     });
   }
 
-  // Source stats
   renderStats();
   renderTimeline();
 }
 
 function renderStats() {
   const sourceCounts = {};
+
   alerts.forEach(a => {
-    a.workflows.forEach(wf => {
+    (a.workflows || []).forEach(wf => {
       sourceCounts[wf.source] = (sourceCounts[wf.source] || 0) + 1;
     });
   });
@@ -870,9 +822,16 @@ function renderStats() {
   const sorted = Object.entries(sourceCounts).sort((a,b) => b[1]-a[1]).slice(0,8);
   const max = sorted[0]?.[1] || 1;
 
-  const colors = ['var(--accent-blue)', 'var(--accent-red)', 'var(--accent-orange)', 'var(--accent-green)', 'var(--accent-yellow)'];
+  const colors = [
+    'var(--accent-blue)',
+    'var(--accent-red)',
+    'var(--accent-orange)',
+    'var(--accent-green)',
+    'var(--accent-yellow)'
+  ];
 
   const el = document.getElementById('sourceStats');
+
   if (sorted.length === 0) {
     el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);text-align:center;padding:12px 0;">Nessun dato</div>';
     return;
@@ -892,7 +851,9 @@ function renderStats() {
 
 function renderTimeline() {
   const el = document.getElementById('timeline');
-  const sorted = [...alerts].sort((a,b) => b.id - a.id).slice(0, 10);
+  const sorted = [...alerts].sort((a,b) => Number(b.id) - Number(a.id)).slice(0, 10);
+
+  document.getElementById('lastUpdated').textContent = dashboardLastUpdate;
 
   if (sorted.length === 0) {
     el.innerHTML = '<div style="color:var(--text-muted);font-size:11px;text-align:center;padding:16px 0;">Nessun evento</div>';
@@ -901,25 +862,18 @@ function renderTimeline() {
 
   el.innerHTML = sorted.map(a => {
     const cfg = typeConfig(a.type);
-    const dt = new Date(a.id);
-    const timeStr = dt.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' });
+    const workflows = a.workflows || [];
+
     return `
       <div class="timeline-item">
         <div class="tl-dot ${cfg.dotCls}" style="background:${cfg.barColor}"></div>
         <div class="tl-content">
           <div class="tl-title">${escHtml(a.title)}</div>
-          <div class="tl-meta">${escHtml(a.timestamp)} · ${a.workflows.length} WF</div>
+          <div class="tl-meta">${escHtml(a.timestamp)} · ${workflows.length} WF</div>
         </div>
-        <div class="tl-time">${timeStr}</div>
+        <div class="tl-time">${escHtml(a.type)}</div>
       </div>`;
   }).join('');
-
-  document.getElementById('lastUpdated').textContent =
-    new Date(sorted[0].id).toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' });
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 // ── FILTER ──
@@ -930,54 +884,22 @@ function setFilter(f, btn) {
   render();
 }
 
-// ── FORM ──
+// ── FORM DISABILITATO ──
 function toggleForm() {
-  const f = document.getElementById('addForm');
-  f.classList.toggle('open');
+  alert('La dashboard ora è alimentata da dashboard-data.json. Gli inserimenti manuali sono disabilitati.');
 }
 
 function saveAlert() {
-  const type      = document.getElementById('fType').value;
-  const title     = document.getElementById('fTitle').value.trim();
-  const timestamp = document.getElementById('fTimestamp').value.trim();
-  const wfRaw     = document.getElementById('fWorkflows').value.trim();
-  const notes     = document.getElementById('fNotes').value.trim();
-
-  if (!title) { alert('Inserisci un titolo per l\'alert.'); return; }
-
-  const workflows = wfRaw ? wfRaw.split('\n').filter(l => l.trim()).map(line => {
-    const parts = line.split('|').map(p => p.trim());
-    return {
-      source: parts[0] || '—',
-      name:   parts[1] || parts[0] || line,
-      date:   parts[2] || '—'
-    };
-  }) : [];
-
-  alerts.push({
-    id: Date.now(),
-    type, title,
-    timestamp: timestamp || new Date().toLocaleString('it-IT') + ' UTC',
-    notes, workflows
-  });
-
-  save();
-  render();
-  toggleForm();
-
-  // Reset form
-  ['fTitle','fTimestamp','fWorkflows','fNotes'].forEach(id => document.getElementById(id).value = '');
+  alert('Inserimento manuale disabilitato. Aggiornare dashboard-data.json tramite Power Automate.');
 }
 
-// ── DELETE ──
 function deleteAlert(id) {
-  alerts = alerts.filter(a => a.id !== id);
-  save();
-  render();
+  alert('Cancellazione manuale disabilitata. Aggiornare dashboard-data.json tramite Power Automate.');
 }
 
 // ── INIT ──
-render();
+loadData();
+setInterval(loadData, 60000);
 </script>
 </body>
 </html>
