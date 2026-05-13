@@ -683,40 +683,155 @@
 </div>
 
 <script>
-// ── DATA STORE ──
+const FLOWS = [
+  {
+    id: 'all',
+    label: 'TUTTI',
+    file: null
+  },
+  {
+    id: 'general_la',
+    label: 'WF_DIM_GENERAL_LA',
+    file: 'data/MONITORAGGI_FASTWEB_WF_DIM_GENERAL_LA.json'
+  },
+  {
+    id: 'order_la',
+    label: 'WF_DIM_ORDER_LA',
+    file: 'data/MONITORAGGI_FASTWEB_WF_DIM_ORDER_LA.json'
+  },
+  {
+    id: 'alert_102',
+    label: 'ALERT 10.2',
+    file: 'data/MONITORAGGI_FASTWEB_102.json'
+  },
+  {
+    id: 'cdc_delay',
+    label: 'CDC DELAY',
+    file: 'data/MONITORAGGI_FASTWEB_MVP_CDC_DELAY.json'
+  },
+  {
+    id: 'alert_96',
+    label: 'ALERT 9.6',
+    file: 'data/MONITORAGGI_FASTWEB_MVP_ALERT_96.json'
+  }
+];
+
 let alerts = [];
 let currentFilter = 'all';
+let currentFlow = new URLSearchParams(window.location.search).get('flow') || 'all';
 let dashboardLastUpdate = '—';
 
 async function loadData() {
   try {
-    const response = await fetch('dashboard-data.json?ts=' + Date.now());
+    const selectedFlow = FLOWS.find(f => f.id === currentFlow) || FLOWS[0];
 
-    if (!response.ok) {
-      throw new Error('HTTP ' + response.status);
+    if (selectedFlow.id === 'all') {
+      const results = await Promise.all(
+        FLOWS
+          .filter(f => f.file)
+          .map(async flow => {
+            const response = await fetch(flow.file + '?ts=' + Date.now());
+            if (!response.ok) throw new Error(flow.file + ' HTTP ' + response.status);
+            const data = await response.json();
+
+            return {
+              flowName: data.flowName || flow.label,
+              lastUpdate: data.lastUpdate || '—',
+              alerts: (data.alerts || []).map(a => ({
+                ...a,
+                sourceFlow: data.flowName || flow.label
+              }))
+            };
+          })
+      );
+
+      alerts = results.flatMap(r => r.alerts);
+      dashboardLastUpdate = results
+        .map(r => r.lastUpdate)
+        .filter(v => v && v !== '—')
+        .slice(-1)[0] || '—';
+
+      setHeaderSubtitle('Tutti i monitoraggi');
+    } else {
+      const response = await fetch(selectedFlow.file + '?ts=' + Date.now());
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+
+      const data = await response.json();
+
+      alerts = (data.alerts || []).map(a => ({
+        ...a,
+        sourceFlow: data.flowName || selectedFlow.label
+      }));
+
+      dashboardLastUpdate = data.lastUpdate || '—';
+
+      setHeaderSubtitle(data.flowName || selectedFlow.label);
     }
 
-    const data = await response.json();
-
-    alerts = data.alerts || [];
-    dashboardLastUpdate = data.lastUpdate || '—';
-
+    renderFlowButtons();
     render();
+
   } catch (error) {
-    console.error('Errore caricamento dashboard-data.json:', error);
+    console.error('Errore caricamento JSON:', error);
 
     const container = document.getElementById('alertsContainer');
     if (container) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="icon">⚠️</div>
-          <p>Errore caricamento dashboard-data.json</p>
+          <p>Errore caricamento dati JSON</p>
         </div>`;
     }
   }
 }
 
-// ── HELPERS ──
+function setHeaderSubtitle(text) {
+  const el = document.querySelector('.header-subtitle');
+  if (el) {
+    el.textContent = 'Workflow Monitoring Dashboard · ' + text;
+  }
+}
+
+function renderFlowButtons() {
+  const old = document.getElementById('flowDashboardBar');
+  if (old) old.remove();
+
+  const panel = document.getElementById('panelLeft');
+  const firstBlock = panel.querySelector('div');
+
+  const bar = document.createElement('div');
+  bar.id = 'flowDashboardBar';
+  bar.style.display = 'flex';
+  bar.style.gap = '6px';
+  bar.style.flexWrap = 'wrap';
+  bar.style.marginBottom = '8px';
+
+  bar.innerHTML = FLOWS.map(flow => `
+    <button
+      class="filter-btn ${flow.id === currentFlow ? 'active' : ''}"
+      onclick="selectFlow('${flow.id}')">
+      ${escHtml(flow.label)}
+    </button>
+  `).join('');
+
+  panel.insertBefore(bar, firstBlock);
+}
+
+function selectFlow(flowId) {
+  currentFlow = flowId;
+  currentFilter = 'all';
+
+  const url = new URL(window.location.href);
+  url.searchParams.set('flow', flowId);
+  window.history.pushState({}, '', url);
+
+  document.querySelectorAll('.filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
+  const firstStatusBtn = document.querySelector('.filter-bar .filter-btn');
+  if (firstStatusBtn) firstStatusBtn.classList.add('active');
+
+  loadData();
+}
+
 function typeConfig(t) {
   const c = {
     failed:  { label: '🔴 REPORT FAILED',     cls: 'failed',  dotCls: 'red',    tagCls: 'red',    barColor: 'var(--accent-red)' },
@@ -735,7 +850,6 @@ function escHtml(s) {
     .replace(/"/g,'&quot;');
 }
 
-// ── CLOCK ──
 function updateClock() {
   const now = new Date();
   document.getElementById('clock').textContent =
@@ -744,7 +858,6 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// ── RENDER ──
 function render() {
   const filtered = currentFilter === 'all'
     ? alerts
@@ -769,19 +882,23 @@ function render() {
       const cfg = typeConfig(alert.type);
       const workflows = alert.workflows || [];
 
-      const wfRows = workflows.map(wf => `
-        <div class="wf-row ${alert.type}">
-          <div class="wf-source">${escHtml(wf.source)}</div>
-          <div class="wf-name">${escHtml(wf.name)}</div>
-          <div class="wf-date">${escHtml(wf.date)}</div>
-        </div>`).join('');
+      const wfRows = workflows.map(wf => {
+        const fullName = wf.step ? `${wf.name} | ${wf.step}` : wf.name;
+
+        return `
+          <div class="wf-row ${alert.type}">
+            <div class="wf-source">${escHtml(wf.source)}</div>
+            <div class="wf-name">${escHtml(fullName)}</div>
+            <div class="wf-date">${escHtml(wf.date)}</div>
+          </div>`;
+      }).join('');
 
       const notesHtml = alert.notes
         ? `<div style="font-size:11px; color:var(--text-dim); margin-bottom:8px; font-style:italic;">${escHtml(alert.notes)}</div>`
         : '';
 
-      const wfSection = workflows.length > 0
-        ? `<div class="wf-list">${wfRows}</div>`
+      const sourceFlowHtml = alert.sourceFlow
+        ? `<div style="font-size:10px; color:var(--text-muted); margin-bottom:8px;">${escHtml(alert.sourceFlow)}</div>`
         : '';
 
       const card = document.createElement('div');
@@ -792,13 +909,12 @@ function render() {
             <div class="dot ${cfg.dotCls}"></div>
             ${escHtml(alert.title)}
           </div>
-          <div style="display:flex;align-items:center;gap:4px;">
-            <div class="alert-ts">${escHtml(alert.timestamp)}</div>
-          </div>
+          <div class="alert-ts">${escHtml(alert.timestamp)}</div>
         </div>
         <div class="alert-body">
+          ${sourceFlowHtml}
           ${notesHtml}
-          ${wfSection}
+          ${workflows.length > 0 ? `<div class="wf-list">${wfRows}</div>` : ''}
           ${workflows.length > 0 ? `<div style="margin-top:8px; font-size:10px; color:var(--text-muted);">${workflows.length} workflow</div>` : ''}
         </div>`;
 
@@ -851,7 +967,7 @@ function renderStats() {
 
 function renderTimeline() {
   const el = document.getElementById('timeline');
-  const sorted = [...alerts].sort((a,b) => Number(b.id) - Number(a.id)).slice(0, 10);
+  const sorted = [...alerts].slice(-10).reverse();
 
   document.getElementById('lastUpdated').textContent = dashboardLastUpdate;
 
@@ -876,30 +992,28 @@ function renderTimeline() {
   }).join('');
 }
 
-// ── FILTER ──
 function setFilter(f, btn) {
   currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   render();
 }
 
-// ── FORM DISABILITATO ──
 function toggleForm() {
-  alert('La dashboard ora è alimentata da dashboard-data.json. Gli inserimenti manuali sono disabilitati.');
+  alert('La dashboard è alimentata dai file JSON in /data. Gli inserimenti manuali sono disabilitati.');
 }
 
 function saveAlert() {
-  alert('Inserimento manuale disabilitato. Aggiornare dashboard-data.json tramite Power Automate.');
+  alert('Inserimento manuale disabilitato. Aggiornare i file JSON tramite Power Automate.');
 }
 
 function deleteAlert(id) {
-  alert('Cancellazione manuale disabilitata. Aggiornare dashboard-data.json tramite Power Automate.');
+  alert('Cancellazione manuale disabilitata. Aggiornare i file JSON tramite Power Automate.');
 }
 
-// ── INIT ──
 loadData();
 setInterval(loadData, 60000);
 </script>
+
 </body>
 </html>
