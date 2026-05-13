@@ -1,0 +1,45 @@
+{
+  "flowName": "MONITORAGGI_FASTWEB_MVP_ALERT_96",
+  "lastUpdate": "13/05/2026 13:01 UTC",
+  "alerts": [
+    {
+      "id": "mvp-alert-96-20260513",
+      "type": "failed",
+      "title": "ALERT REPORT 9.6 FAILED",
+      "timestamp": "13/05/2026 13:01 UTC",
+      "notes": "Sono stati rilevati errori",
+      "workflows": [
+        {
+          "source": "MDB",
+          "name": "WF_MDB_QLIK_EVENT",
+          "step": "ST_FAILED1",
+          "date": "20260511 18:00:41"
+        },
+        {
+          "source": "MDB",
+          "name": "WF_MDB_QLIK_EVENT",
+          "step": "QlikEvent_FAILED",
+          "date": "20260511 18:00:51"
+        },
+        {
+          "source": "EDH",
+          "name": "WF_TNO_PAM_ATTIVITA",
+          "step": "s_M_AGGIORNAMENTO_ELABORAZIONE_EDH_FAILED",
+          "date": "20260512 18:06:21"
+        },
+        {
+          "source": "GDPR",
+          "name": "wf_GDPR_CRYPT",
+          "step": "WRK_CANCELLAZIONE_PROSPECT",
+          "date": "20260513 13:45:55"
+        },
+        {
+          "source": "GDPR",
+          "name": "wf_GDPR_CRYPT",
+          "step": "s_M_GDPR_CRYPT_MDM_BATCHGROUP",
+          "date": "20260513 13:45:56"
+        }
+      ]
+    }
+  ]
+}
