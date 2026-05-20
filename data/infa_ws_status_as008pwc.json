@@ -1,0 +1,50 @@
+{
+  "host": "as008pwc",
+  "domain": "as008pwc.intranet.fw",
+  "timestamp": "2026-05-20 17:14:53",
+  "ssh_status": "LOCAL",
+  "informatica_process_status": "UP",
+  "catalina_process_count": 4,
+  "services": [
+    {
+      "port": 7333,
+      "protocol": "http",
+      "status": "UP",
+      "recv_q": 0,
+      "send_q": 100,
+      "pid": 16402,
+      "http_code": 200,
+      "url": "http://as008pwc.intranet.fw:7333/wsh/"
+    }    ,
+    {
+      "port": 7335,
+      "protocol": "http",
+      "status": "UP",
+      "recv_q": 0,
+      "send_q": 100,
+      "pid": 16555,
+      "http_code": 200,
+      "url": "http://as008pwc.intranet.fw:7335/wsh/"
+    }    ,
+    {
+      "port": 7337,
+      "protocol": "http",
+      "status": "UP",
+      "recv_q": 0,
+      "send_q": 100,
+      "pid": 17236,
+      "http_code": 200,
+      "url": "http://as008pwc.intranet.fw:7337/wsh/"
+    }    ,
+    {
+      "port": 7338,
+      "protocol": "https",
+      "status": "UP",
+      "recv_q": 0,
+      "send_q": 100,
+      "pid": 17937,
+      "http_code": 200,
+      "url": "https://as008pwc.intranet.fw:7338/wsh/"
+    }
+  ]
+}
