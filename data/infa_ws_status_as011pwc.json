@@ -1,7 +1,7 @@
 {
   "host": "as011pwc",
   "domain": "as011pwc.intranet.fw",
-  "timestamp": "2026-05-25 21:18:21",
+  "timestamp": "2026-05-26 16:35:17",
   "ssh_status": "OK",
   "informatica_process_status": "UP",
   "catalina_process_count": 4,
@@ -39,11 +39,11 @@
     {
       "port": 7338,
       "protocol": "https",
-      "status": "STARTING",
-      "recv_q": 101,
+      "status": "UP",
+      "recv_q": 0,
       "send_q": 100,
       "pid": 1359,
-      "http_code": 0,
+      "http_code": 200,
       "url": "https://as011pwc.intranet.fw:7338/wsh/"
     }
   ]
