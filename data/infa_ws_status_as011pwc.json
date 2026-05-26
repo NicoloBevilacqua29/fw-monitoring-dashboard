@@ -43,7 +43,7 @@
       "recv_q": 101,
       "send_q": 100,
       "pid": 1359,
-      "http_code": 000,
+      "http_code": 0,
       "url": "https://as011pwc.intranet.fw:7338/wsh/"
     }
   ]
