@@ -1,1018 +1,402 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Monitoraggio FW – PA</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap');
-
-  :root {
-    --bg: #0b0f1a;
-    --surface: #111827;
-    --surface2: #1a2235;
-    --border: #1e2d45;
-    --accent-red: #ff3b5c;
-    --accent-orange: #ff8c42;
-    --accent-green: #2dce89;
-    --accent-blue: #4da6ff;
-    --accent-yellow: #ffd166;
-    --text: #e2e8f0;
-    --text-dim: #64748b;
-    --text-muted: #334155;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Syne', sans-serif;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--mono);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Grid noise texture */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(77,166,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(77,166,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* ── HEADER ── */
-  header {
-    position: relative;
-    z-index: 10;
-    padding: 20px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    background: rgba(11,15,26,0.9);
-    backdrop-filter: blur(12px);
-  }
-
-  .header-left { display: flex; align-items: center; gap: 16px; }
-
-  .logo-mark {
-    width: 36px; height: 36px;
-    border: 2px solid var(--accent-blue);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--sans);
-    font-weight: 800;
-    font-size: 14px;
-    color: var(--accent-blue);
-    letter-spacing: -1px;
-  }
-
-  .header-title {
-    font-family: var(--sans);
-    font-size: 18px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -0.5px;
-  }
-
-  .header-subtitle {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 2px;
-  }
-
-  .header-right { display: flex; align-items: center; gap: 16px; }
-
-  .live-badge {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 11px;
-    color: var(--accent-green);
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-
-  .live-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--accent-green);
-    box-shadow: 0 0 8px var(--accent-green);
-    animation: pulse-dot 1.5s ease-in-out infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  #clock {
-    font-size: 13px;
-    color: var(--text-dim);
-    font-weight: 600;
-  }
-
-  .btn-add {
-    background: var(--accent-blue);
-    color: #000;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    letter-spacing: 0.5px;
-    transition: all 0.2s;
-  }
-  .btn-add:hover { background: #7bbfff; transform: translateY(-1px); }
-
-  /* ── KPI STRIP ── */
-  .kpi-strip {
-    position: relative;
-    z-index: 5;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .kpi-card {
-    padding: 20px 28px;
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    transition: background 0.2s;
-  }
-  .kpi-card:last-child { border-right: none; }
-  .kpi-card:hover { background: var(--surface); }
-
-  .kpi-label {
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--text-dim);
-  }
-
-  .kpi-value {
-    font-family: var(--sans);
-    font-size: 32px;
-    font-weight: 800;
-    line-height: 1;
-  }
-
-  .kpi-value.red { color: var(--accent-red); }
-  .kpi-value.orange { color: var(--accent-orange); }
-  .kpi-value.green { color: var(--accent-green); }
-  .kpi-value.blue { color: var(--accent-blue); }
-
-  .kpi-delta {
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-
-  /* ── MAIN LAYOUT ── */
-  .main {
-    position: relative;
-    z-index: 5;
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 0;
-    height: calc(100vh - 145px);
-    overflow: hidden;
-  }
-
-  /* LEFT PANEL */
-  .panel-left {
-    padding: 24px 28px;
-    overflow-y: auto;
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .panel-left::-webkit-scrollbar { width: 4px; }
-  .panel-left::-webkit-scrollbar-track { background: transparent; }
-  .panel-left::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  /* SECTION HEADERS */
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
-
-  .section-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 0.3px;
-  }
-
-  .section-badge {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-
-  .section-time {
-    font-size: 10px;
-    color: var(--text-muted);
-    letter-spacing: 0.5px;
-  }
-
-  /* ── ALERT CARD ── */
-  .alert-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-    animation: slideIn 0.3s ease both;
-  }
-  .alert-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-  }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .alert-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .alert-type {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-
-  .alert-type.failed { color: var(--accent-red); }
-  .alert-type.delay { color: var(--accent-orange); }
-  .alert-type.running { color: var(--accent-yellow); }
-  .alert-type.ok { color: var(--accent-green); }
-
-  .alert-ts {
-    font-size: 10px;
-    color: var(--text-dim);
-  }
-
-  .alert-body { padding: 12px 16px; }
-
-  /* WF ROWS */
-  .wf-list { display: flex; flex-direction: column; gap: 4px; }
-
-  .wf-row {
-    display: grid;
-    grid-template-columns: 90px 1fr auto;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 10px;
-    border-radius: 6px;
-    background: var(--surface2);
-    font-size: 11px;
-    border-left: 3px solid transparent;
-    transition: background 0.15s;
-  }
-  .wf-row:hover { background: #1f2e47; }
-  .wf-row.failed { border-left-color: var(--accent-red); }
-  .wf-row.delay { border-left-color: var(--accent-orange); }
-  .wf-row.ok { border-left-color: var(--accent-green); }
-
-  .wf-source {
-    color: var(--accent-blue);
-    font-weight: 600;
-    font-size: 10px;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .wf-name {
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .wf-date {
-    color: var(--text-dim);
-    font-size: 10px;
-    white-space: nowrap;
-  }
-
-  /* STATUS DOT */
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .dot.red { background: var(--accent-red); box-shadow: 0 0 6px var(--accent-red); }
-  .dot.orange { background: var(--accent-orange); box-shadow: 0 0 6px var(--accent-orange); }
-  .dot.yellow { background: var(--accent-yellow); }
-  .dot.green { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); }
-
-  /* ── RIGHT PANEL ── */
-  .panel-right {
-    padding: 24px 20px;
-    overflow-y: auto;
-    background: var(--surface);
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .panel-right::-webkit-scrollbar { width: 4px; }
-  .panel-right::-webkit-scrollbar-track { background: transparent; }
-  .panel-right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-  /* ADD FORM */
-  .add-form {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    display: none;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .add-form.open { display: flex; animation: slideIn 0.25s ease; }
-
-  .form-title {
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 4px;
-  }
-
-  .form-row { display: flex; flex-direction: column; gap: 4px; }
-
-  .form-label { font-size: 10px; color: var(--text-dim); letter-spacing: 0.5px; text-transform: uppercase; }
-
-  .form-input, .form-select {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 12px;
-    padding: 8px 10px;
-    border-radius: 6px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .form-input:focus, .form-select:focus { border-color: var(--accent-blue); }
-  .form-select option { background: var(--surface); }
-
-  .form-actions { display: flex; gap: 8px; margin-top: 4px; }
-
-  .btn-save {
-    flex: 1;
-    background: var(--accent-blue);
-    color: #000;
-    border: none;
-    padding: 9px;
-    border-radius: 6px;
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .btn-save:hover { background: #7bbfff; }
-
-  .btn-cancel {
-    background: transparent;
-    color: var(--text-dim);
-    border: 1px solid var(--border);
-    padding: 9px 16px;
-    border-radius: 6px;
-    font-family: var(--mono);
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-cancel:hover { border-color: var(--text-dim); color: var(--text); }
-
-  /* TIMELINE */
-  .timeline { display: flex; flex-direction: column; gap: 8px; }
-
-  .timeline-item {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    font-size: 11px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-    animation: slideIn 0.3s ease both;
-  }
-  .timeline-item:last-child { border-bottom: none; }
-
-  .tl-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    margin-top: 3px;
-    flex-shrink: 0;
-  }
-
-  .tl-content { flex: 1; }
-  .tl-title { color: var(--text); font-weight: 600; }
-  .tl-meta { color: var(--text-dim); font-size: 10px; margin-top: 2px; }
-
-  .tl-time { color: var(--text-muted); font-size: 10px; white-space: nowrap; }
-
-  /* STAT BARS */
-  .stat-group { display: flex; flex-direction: column; gap: 8px; }
-
-  .stat-row { display: flex; flex-direction: column; gap: 4px; }
-
-  .stat-label-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 10px;
-    color: var(--text-dim);
-  }
-
-  .stat-bar-bg {
-    height: 4px;
-    background: var(--surface2);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .stat-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* MINI TAG */
-  .tag {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 7px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-  }
-  .tag.red { background: rgba(255,59,92,0.15); color: var(--accent-red); }
-  .tag.orange { background: rgba(255,140,66,0.15); color: var(--accent-orange); }
-  .tag.green { background: rgba(45,206,137,0.15); color: var(--accent-green); }
-  .tag.yellow { background: rgba(255,209,102,0.15); color: var(--accent-yellow); }
-
-  /* FILTER BAR */
-  .filter-bar {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-
-  .filter-btn {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-family: var(--mono);
-    font-size: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .filter-btn:hover, .filter-btn.active {
-    background: var(--accent-blue);
-    border-color: var(--accent-blue);
-    color: #000;
-  }
-
-  /* DELETE BTN */
-  .btn-delete {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 13px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    transition: all 0.2s;
-    margin-left: 8px;
-  }
-  .btn-delete:hover { background: rgba(255,59,92,0.15); color: var(--accent-red); }
-
-  /* EMPTY STATE */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-muted);
-  }
-  .empty-state .icon { font-size: 32px; margin-bottom: 8px; }
-  .empty-state p { font-size: 12px; }
-
-  /* SCROLLBAR MAIN */
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FW Monitoring Dashboard</title>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --card-hover: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --border: #334155;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --blue: #38bdf8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: radial-gradient(circle at top, #1e293b, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 32px 40px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: -0.5px;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      color: var(--muted);
+    }
+
+    main {
+      padding: 32px 40px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, #111827, #0f172a);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .card:hover {
+      background: var(--card-hover);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .server-name {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .domain {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .up {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+
+    .down {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--yellow);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .details {
+      display: none;
+      margin-top: 20px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    .card.open .details {
+      display: block;
+    }
+
+    .service {
+      display: grid;
+      grid-template-columns: 70px 70px 70px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+      font-size: 14px;
+    }
+
+    .service:last-child {
+      border-bottom: none;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .footer {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .error {
+      color: var(--red);
+      padding: 20px;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      border-radius: 14px;
+      background: rgba(239, 68, 68, 0.08);
+    }
+  </style>
 </head>
+
 <body>
+  <header>
+    <h1>FW Monitoring Dashboard</h1>
+    <p>Stato WebServiceHub Informatica</p>
+  </header>
 
-<!-- HEADER -->
-<header>
-  <div class="header-left">
-    <div class="logo-mark">MW</div>
-    <div>
-      <div class="header-title">Monitoraggio FW — PA</div>
-      <div class="header-subtitle">Workflow Monitoring Dashboard · GitHub Pages</div>
-    </div>
-  </div>
-  <div class="header-right">
-    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-    <div id="clock">--:--:--</div>
-  </div>
-</header>
+  <main>
+    <div id="dashboard" class="grid"></div>
+    <div id="footer" class="footer"></div>
+  </main>
 
-<!-- KPI STRIP -->
-<div class="kpi-strip" id="kpiStrip">
-  <div class="kpi-card">
-    <div class="kpi-label">Report Falliti</div>
-    <div class="kpi-value red" id="kpiFailedReports">0</div>
-    <div class="kpi-delta">Alert attivi</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">WF in Ritardo</div>
-    <div class="kpi-value orange" id="kpiDelayed">0</div>
-    <div class="kpi-delta">CDC Delay &gt; 4 ORE</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">WF In Running</div>
-    <div class="kpi-value yellow" id="kpiRunning">0</div>
-    <div class="kpi-delta">Ancora in esecuzione</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Completati OK</div>
-    <div class="kpi-value green" id="kpiOk">0</div>
-    <div class="kpi-delta">Terminati correttamente</div>
-  </div>
-</div>
-
-<!-- MAIN LAYOUT -->
-<div class="main">
-
-  <!-- LEFT: ALERTS -->
-  <div class="panel-left" id="panelLeft">
-
-    <!-- FILTER BAR -->
-    <div>
-      <div class="filter-bar">
-        <button class="filter-btn active" onclick="setFilter('all', this)">Tutti</button>
-        <button class="filter-btn" onclick="setFilter('failed', this)">🔴 Falliti</button>
-        <button class="filter-btn" onclick="setFilter('delay', this)">🟠 Ritardo</button>
-        <button class="filter-btn" onclick="setFilter('running', this)">🟡 Running</button>
-        <button class="filter-btn" onclick="setFilter('ok', this)">🟢 OK</button>
-      </div>
-    </div>
-
-    <!-- ALERTS CONTAINER -->
-    <div id="alertsContainer"></div>
-
-  </div>
-
-  <!-- RIGHT: SIDEBAR -->
-  <div class="panel-right">
-
-    <!-- ADD FORM -->
-    <div class="add-form" id="addForm">
-      <div class="form-title">Nuovo Alert / WF</div>
-
-      <div class="form-row">
-        <div class="form-label">Tipo</div>
-        <select class="form-select" id="fType">
-          <option value="failed">🔴 Report Fallito</option>
-          <option value="delay">🟠 CDC Delay &gt; 4 ORE</option>
-          <option value="running">🟡 WF Ancora in Running</option>
-          <option value="ok">🟢 Completato OK</option>
-        </select>
-      </div>
-
-      <div class="form-row">
-        <div class="form-label">Titolo Alert</div>
-        <input class="form-input" id="fTitle" placeholder="es. ALERT REPORT 9.6 FAILED">
-      </div>
-
-      <div class="form-row">
-        <div class="form-label">Timestamp controllo (UTC)</div>
-        <input class="form-input" id="fTimestamp" placeholder="es. 13/05/2026 10:00 UTC">
-      </div>
-
-      <div class="form-row">
-        <div class="form-label">Workflow (uno per riga: SORGENTE | NOME | DATA)</div>
-        <textarea class="form-input" id="fWorkflows" rows="5"
-          style="resize:vertical; line-height:1.6"
-          placeholder="MDB | WF_MDB_QLIK_EVENT | 20260511&#10;EDH | wf_download_CatalogItemDiscount | 20260513"></textarea>
-      </div>
-
-      <div class="form-row">
-        <div class="form-label">Note aggiuntive</div>
-        <input class="form-input" id="fNotes" placeholder="Opzionale">
-      </div>
-
-      <div class="form-actions">
-        <button class="btn-save" onclick="saveAlert()">SALVA</button>
-        <button class="btn-cancel" onclick="toggleForm()">Annulla</button>
-      </div>
-    </div>
-
-    <!-- STATS -->
-    <div>
-      <div class="section-header">
-        <div class="section-title">📊 Statistiche Sorgenti</div>
-      </div>
-      <div class="stat-group" id="sourceStats">
-        <div class="stat-row">
-          <div class="stat-label-row"><span>—</span><span>—</span></div>
-          <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:0%; background:var(--accent-blue)"></div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TIMELINE -->
-    <div>
-      <div class="section-header">
-        <div class="section-title">🕐 Ultimi Eventi</div>
-        <div class="section-time" id="lastUpdated">—</div>
-      </div>
-      <div class="timeline" id="timeline">
-        <div style="color:var(--text-muted); font-size:11px; text-align:center; padding: 16px 0;">
-          Nessun evento registrato
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<script>
-const FLOWS = [
-  {
-    id: 'all',
-    label: 'TUTTI',
-    file: null
-  },
-  {
-    id: 'general_la',
-    label: 'WF_DIM_GENERAL_LA',
-    file: 'data/MONITORAGGI_FASTWEB_WF_DIM_GENERAL_LA.json'
-  },
-  {
-    id: 'order_la',
-    label: 'WF_DIM_ORDER_LA',
-    file: 'data/MONITORAGGI_FASTWEB_WF_DIM_ORDER_LA.json'
-  },
-  {
-    id: 'alert_102',
-    label: 'ALERT 10.2',
-    file: 'data/MONITORAGGI_FASTWEB_102.json'
-  },
-  {
-    id: 'cdc_delay',
-    label: 'CDC DELAY',
-    file: 'data/MONITORAGGI_FASTWEB_MVP_CDC_DELAY.json'
-  },
-  {
-    id: 'alert_96',
-    label: 'ALERT 9.6',
-    file: 'data/MONITORAGGI_FASTWEB_MVP_ALERT_96.json'
-  }
-];
-
-let alerts = [];
-let currentFilter = 'all';
-let currentFlow = new URLSearchParams(window.location.search).get('flow') || 'all';
-let dashboardLastUpdate = '—';
-
-async function loadData() {
-  try {
-    const selectedFlow = FLOWS.find(f => f.id === currentFlow) || FLOWS[0];
-
-    if (selectedFlow.id === 'all') {
-      const results = await Promise.all(
-        FLOWS
-          .filter(f => f.file)
-          .map(async flow => {
-            const response = await fetch(flow.file + '?ts=' + Date.now());
-            if (!response.ok) throw new Error(flow.file + ' HTTP ' + response.status);
-            const data = await response.json();
-
-            return {
-              flowName: data.flowName || flow.label,
-              lastUpdate: data.lastUpdate || '—',
-              alerts: (data.alerts || []).map(a => ({
-                ...a,
-                sourceFlow: data.flowName || flow.label
-              }))
-            };
-          })
-      );
-
-      alerts = results.flatMap(r => r.alerts);
-      dashboardLastUpdate = results
-        .map(r => r.lastUpdate)
-        .filter(v => v && v !== '—')
-        .slice(-1)[0] || '—';
-
-      setHeaderSubtitle('Tutti i monitoraggi');
-    } else {
-      const response = await fetch(selectedFlow.file + '?ts=' + Date.now());
-      if (!response.ok) throw new Error('HTTP ' + response.status);
-
-      const data = await response.json();
-
-      alerts = (data.alerts || []).map(a => ({
-        ...a,
-        sourceFlow: data.flowName || selectedFlow.label
-      }));
-
-      dashboardLastUpdate = data.lastUpdate || '—';
-
-      setHeaderSubtitle(data.flowName || selectedFlow.label);
-    }
-
-    renderFlowButtons();
-    render();
-
-  } catch (error) {
-    console.error('Errore caricamento JSON:', error);
-
-    const container = document.getElementById('alertsContainer');
-    if (container) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="icon">⚠️</div>
-          <p>Errore caricamento dati JSON</p>
-        </div>`;
-    }
-  }
-}
-
-function setHeaderSubtitle(text) {
-  const el = document.querySelector('.header-subtitle');
-  if (el) {
-    el.textContent = 'Workflow Monitoring Dashboard · ' + text;
-  }
-}
-
-function renderFlowButtons() {
-  const old = document.getElementById('flowDashboardBar');
-  if (old) old.remove();
-
-  const panel = document.getElementById('panelLeft');
-  const firstBlock = panel.querySelector('div');
-
-  const bar = document.createElement('div');
-  bar.id = 'flowDashboardBar';
-  bar.style.display = 'flex';
-  bar.style.gap = '6px';
-  bar.style.flexWrap = 'wrap';
-  bar.style.marginBottom = '8px';
-
-  bar.innerHTML = FLOWS.map(flow => `
-    <button
-      class="filter-btn ${flow.id === currentFlow ? 'active' : ''}"
-      onclick="selectFlow('${flow.id}')">
-      ${escHtml(flow.label)}
-    </button>
-  `).join('');
-
-  panel.insertBefore(bar, firstBlock);
-}
-
-function selectFlow(flowId) {
-  currentFlow = flowId;
-  currentFilter = 'all';
-
-  const url = new URL(window.location.href);
-  url.searchParams.set('flow', flowId);
-  window.history.pushState({}, '', url);
-
-  document.querySelectorAll('.filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
-  const firstStatusBtn = document.querySelector('.filter-bar .filter-btn');
-  if (firstStatusBtn) firstStatusBtn.classList.add('active');
-
-  loadData();
-}
-
-function typeConfig(t) {
-  const c = {
-    failed:  { label: '🔴 REPORT FAILED',     cls: 'failed',  dotCls: 'red',    tagCls: 'red',    barColor: 'var(--accent-red)' },
-    delay:   { label: '🟠 CDC DELAY > 4 ORE', cls: 'delay',   dotCls: 'orange', tagCls: 'orange', barColor: 'var(--accent-orange)' },
-    running: { label: '🟡 WF IN RUNNING',     cls: 'running', dotCls: 'yellow', tagCls: 'yellow', barColor: 'var(--accent-yellow)' },
-    ok:      { label: '🟢 COMPLETATO OK',     cls: 'ok',      dotCls: 'green',  tagCls: 'green',  barColor: 'var(--accent-green)' },
-  };
-  return c[t] || c.failed;
-}
-
-function escHtml(s) {
-  return String(s ?? '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
-}
-
-function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent =
-    now.toLocaleTimeString('it-IT', { hour12: false }) + ' UTC+0';
-}
-setInterval(updateClock, 1000);
-updateClock();
-
-function render() {
-  const filtered = currentFilter === 'all'
-    ? alerts
-    : alerts.filter(a => a.type === currentFilter);
-
-  document.getElementById('kpiFailedReports').textContent = alerts.filter(a => a.type === 'failed').length;
-  document.getElementById('kpiDelayed').textContent       = alerts.filter(a => a.type === 'delay').length;
-  document.getElementById('kpiRunning').textContent       = alerts.filter(a => a.type === 'running').length;
-  document.getElementById('kpiOk').textContent            = alerts.filter(a => a.type === 'ok').length;
-
-  const container = document.getElementById('alertsContainer');
-  container.innerHTML = '';
-
-  if (filtered.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <div class="icon">📭</div>
-        <p>Nessun alert per il filtro selezionato</p>
-      </div>`;
-  } else {
-    [...filtered].reverse().forEach(alert => {
-      const cfg = typeConfig(alert.type);
-      const workflows = alert.workflows || [];
-
-      const wfRows = workflows.map(wf => {
-        const fullName = wf.step ? `${wf.name} | ${wf.step}` : wf.name;
-
-        return `
-          <div class="wf-row ${alert.type}">
-            <div class="wf-source">${escHtml(wf.source)}</div>
-            <div class="wf-name">${escHtml(fullName)}</div>
-            <div class="wf-date">${escHtml(wf.date)}</div>
-          </div>`;
-      }).join('');
-
-      const notesHtml = alert.notes
-        ? `<div style="font-size:11px; color:var(--text-dim); margin-bottom:8px; font-style:italic;">${escHtml(alert.notes)}</div>`
-        : '';
-
-      const sourceFlowHtml = alert.sourceFlow
-        ? `<div style="font-size:10px; color:var(--text-muted); margin-bottom:8px;">${escHtml(alert.sourceFlow)}</div>`
-        : '';
-
-      const card = document.createElement('div');
-      card.className = 'alert-card';
-      card.innerHTML = `
-        <div class="alert-header">
-          <div class="alert-type ${cfg.cls}">
-            <div class="dot ${cfg.dotCls}"></div>
-            ${escHtml(alert.title)}
-          </div>
-          <div class="alert-ts">${escHtml(alert.timestamp)}</div>
-        </div>
-        <div class="alert-body">
-          ${sourceFlowHtml}
-          ${notesHtml}
-          ${workflows.length > 0 ? `<div class="wf-list">${wfRows}</div>` : ''}
-          ${workflows.length > 0 ? `<div style="margin-top:8px; font-size:10px; color:var(--text-muted);">${workflows.length} workflow</div>` : ''}
-        </div>`;
-
-      container.appendChild(card);
-    });
-  }
-
-  renderStats();
-  renderTimeline();
-}
-
-function renderStats() {
-  const sourceCounts = {};
-
-  alerts.forEach(a => {
-    (a.workflows || []).forEach(wf => {
-      sourceCounts[wf.source] = (sourceCounts[wf.source] || 0) + 1;
-    });
-  });
-
-  const sorted = Object.entries(sourceCounts).sort((a,b) => b[1]-a[1]).slice(0,8);
-  const max = sorted[0]?.[1] || 1;
-
-  const colors = [
-    'var(--accent-blue)',
-    'var(--accent-red)',
-    'var(--accent-orange)',
-    'var(--accent-green)',
-    'var(--accent-yellow)'
+  <script>
+  const jsonFiles = [
+    "data/infa_ws_status_as008pwc.json",
+    "data/infa_ws_status_as009pwc.json",
+    "data/infa_ws_status_as010pwc.json",
+    "data/infa_ws_status_as011pwc.json",
+    "data/infa_ws_status_as091pwc.json",
+    "data/infa_ws_status_as092pwc.json",
+    "data/infa_ws_status_as093pwc.json",
+    "data/infa_ws_status_as094pwc.json"
   ];
 
-  const el = document.getElementById('sourceStats');
+  function getOverallStatus(server) {
+    const services = server.services || [];
 
-  if (sorted.length === 0) {
-    el.innerHTML = '<div style="font-size:11px;color:var(--text-muted);text-align:center;padding:12px 0;">Nessun dato</div>';
-    return;
+    const allPortsUp = services.every(s => s.status === "UP");
+    const processUp = server.informatica_process_status === "UP";
+
+    if (processUp && allPortsUp) return "UP";
+
+    if (!processUp || services.some(s => s.status === "DOWN")) {
+      return "DOWN";
+    }
+
+    return "WARNING";
   }
 
-  el.innerHTML = sorted.map(([src, cnt], i) => `
-    <div class="stat-row">
-      <div class="stat-label-row">
-        <span style="color:var(--text)">${escHtml(src)}</span>
-        <span>${cnt} WF</span>
-      </div>
-      <div class="stat-bar-bg">
-        <div class="stat-bar-fill" style="width:${(cnt/max*100).toFixed(1)}%; background:${colors[i%colors.length]}"></div>
-      </div>
-    </div>`).join('');
-}
-
-function renderTimeline() {
-  const el = document.getElementById('timeline');
-  const sorted = [...alerts].slice(-10).reverse();
-
-  document.getElementById('lastUpdated').textContent = dashboardLastUpdate;
-
-  if (sorted.length === 0) {
-    el.innerHTML = '<div style="color:var(--text-muted);font-size:11px;text-align:center;padding:16px 0;">Nessun evento</div>';
-    return;
+  function badgeClass(status) {
+    if (status === "UP") return "badge up";
+    if (status === "DOWN") return "badge down";
+    return "badge warning";
   }
 
-  el.innerHTML = sorted.map(a => {
-    const cfg = typeConfig(a.type);
-    const workflows = a.workflows || [];
+  function renderServer(server) {
 
-    return `
-      <div class="timeline-item">
-        <div class="tl-dot ${cfg.dotCls}" style="background:${cfg.barColor}"></div>
-        <div class="tl-content">
-          <div class="tl-title">${escHtml(a.title)}</div>
-          <div class="tl-meta">${escHtml(a.timestamp)} · ${workflows.length} WF</div>
+    const overallStatus = getOverallStatus(server);
+    const services = server.services || [];
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <div class="card-header">
+
+        <div>
+          <div class="server-name">${server.host}</div>
+          <div class="domain">${server.domain}</div>
         </div>
-        <div class="tl-time">${escHtml(a.type)}</div>
-      </div>`;
-  }).join('');
-}
 
-function setFilter(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  render();
-}
+        <div class="${badgeClass(overallStatus)}">
+          ${overallStatus}
+        </div>
 
-function toggleForm() {
-  alert('La dashboard è alimentata dai file JSON in /data. Gli inserimenti manuali sono disabilitati.');
-}
+      </div>
 
-function saveAlert() {
-  alert('Inserimento manuale disabilitato. Aggiornare i file JSON tramite Power Automate.');
-}
+      <div class="summary">
+        <span>
+          Porte UP:
+          ${services.filter(s => s.status === "UP").length}/${services.length}
+        </span>
 
-function deleteAlert(id) {
-  alert('Cancellazione manuale disabilitata. Aggiornare i file JSON tramite Power Automate.');
-}
+        <span>${server.timestamp}</span>
+      </div>
 
-loadData();
-setInterval(loadData, 60000);
+      <div class="details">
+
+        <div class="summary">
+          <span>SSH: ${server.ssh_status}</span>
+          <span>Informatica: ${server.informatica_process_status}</span>
+        </div>
+
+        <div style="margin-top:16px;">
+
+          ${services.map(service => `
+
+            <div class="service">
+
+              <div>
+                <strong>${service.port}</strong>
+              </div>
+
+              <div>
+                ${service.protocol.toUpperCase()}
+              </div>
+
+              <div class="${badgeClass(service.status)}">
+                ${service.status}
+              </div>
+
+              <div>
+                <a href="${service.url}" target="_blank">
+                  Test URL
+                </a>
+
+                <span style="color:#94a3b8;">
+                  · HTTP ${service.http_code}
+                </span>
+              </div>
+
+            </div>
+
+          `).join("")}
+
+        </div>
+
+      </div>
+    `;
+
+    card.addEventListener("click", (event) => {
+
+      if (event.target.tagName.toLowerCase() === "a") {
+        return;
+      }
+
+      card.classList.toggle("open");
+    });
+
+    return card;
+  }
+
+  async function loadDashboard() {
+
+    const dashboard = document.getElementById("dashboard");
+    const footer = document.getElementById("footer");
+
+    dashboard.innerHTML = "";
+
+    const servers = [];
+    const errors = [];
+
+    for (const file of jsonFiles) {
+
+      try {
+
+        const response = await fetch(file, {
+          cache: "no-store"
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const text = await response.text();
+
+        let json;
+
+        try {
+          json = JSON.parse(text);
+        }
+        catch(parseError) {
+
+          console.error("JSON NON VALIDO:", file);
+          console.error(parseError);
+
+          errors.push(`
+            <div class="error">
+              JSON non valido:<br>
+              <strong>${file}</strong><br><br>
+              ${parseError.message}
+            </div>
+          `);
+
+          continue;
+        }
+
+        servers.push(json);
+
+      }
+      catch(error) {
+
+        console.error(error);
+
+        errors.push(`
+          <div class="error">
+            Errore caricamento file:<br>
+            <strong>${file}</strong><br><br>
+            ${error.message}
+          </div>
+        `);
+      }
+    }
+
+    servers
+      .sort((a, b) => a.host.localeCompare(b.host))
+      .forEach(server => {
+        dashboard.appendChild(renderServer(server));
+      });
+
+    if (errors.length > 0) {
+
+      const errorContainer = document.createElement("div");
+
+      errorContainer.style.marginTop = "20px";
+
+      errorContainer.innerHTML = errors.join("");
+
+      dashboard.appendChild(errorContainer);
+    }
+
+    if (servers.length > 0) {
+
+      const latestTimestamp = servers
+        .map(s => s.timestamp)
+        .sort()
+        .reverse()[0];
+
+      footer.textContent =
+        `Ultimo aggiornamento dati: ${latestTimestamp}`;
+    }
+  }
+
+  loadDashboard();
 </script>
-
 </body>
 </html>
