@@ -7,213 +7,492 @@
 
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #111827;
-      --card-hover: #1f2937;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --border: #334155;
-      --green: #22c55e;
-      --red: #ef4444;
-      --yellow: #f59e0b;
-      --blue: #38bdf8;
+      --bg: #0a0f1e;
+      --surface: #111827;
+      --surface2: #1a2234;
+      --border: rgba(255,255,255,0.07);
+      --border-hover: rgba(255,255,255,0.14);
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --green: #4ade80;
+      --green-glow: rgba(74,222,128,0.15);
+      --red: #f87171;
+      --red-glow: rgba(248,113,113,0.2);
+      --yellow: #fbbf24;
+      --blue: #60a5fa;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
-      font-family: Inter, Segoe UI, Arial, sans-serif;
-      background: radial-gradient(circle at top, #1e293b, var(--bg));
+      font-family: Inter, system-ui, sans-serif;
+      background: var(--bg);
       color: var(--text);
       min-height: 100vh;
     }
 
     header {
-      padding: 32px 40px 24px;
+      padding: 40px 40px 32px;
       border-bottom: 1px solid var(--border);
     }
 
+    .header-inner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px var(--green-glow);
+      animation: pulse-green 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    .header-dot.has-down {
+      background: var(--red);
+      box-shadow: 0 0 0 4px var(--red-glow);
+      animation: pulse-red 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse-green {
+      0%,100% { box-shadow: 0 0 0 4px var(--green-glow); }
+      50% { box-shadow: 0 0 0 8px transparent; }
+    }
+
+    @keyframes pulse-red {
+      0%,100% { box-shadow: 0 0 0 4px var(--red-glow); }
+      50% { box-shadow: 0 0 0 10px transparent; }
+    }
+
     header h1 {
-      margin: 0;
-      font-size: 34px;
-      letter-spacing: -0.8px;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
     }
 
     header p {
-      margin: 8px 0 0;
+      margin-top: 6px;
       color: var(--muted);
-      font-size: 17px;
+      font-size: 14px;
     }
 
     main {
-      padding: 32px 40px 48px;
+      padding: 36px 40px 60px;
     }
 
     .site-section {
-      margin-bottom: 44px;
+      margin-bottom: 48px;
     }
 
-    .section-title {
+    .section-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 18px;
-      padding: 0 4px;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
-    .section-title span {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.4px;
-    }
-
-    .section-title small {
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
       color: var(--muted);
-      font-size: 14px;
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .section-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3px 10px;
+      border-radius: 999px;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
-      gap: 22px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      align-items: start;
     }
 
     .card {
-      background: linear-gradient(180deg, #111827, #0f172a);
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 22px;
+      border-radius: 16px;
+      overflow: hidden;
       cursor: pointer;
-      transition: 0.2s ease;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      background: radial-gradient(
+        600px at var(--mx,50%) var(--my,50%),
+        rgba(255,255,255,0.03),
+        transparent 60%
+      );
+      pointer-events: none;
     }
 
     .card:hover {
-      background: var(--card-hover);
-      transform: translateY(-2px);
+      border-color: var(--border-hover);
+      transform: translateY(-1px);
     }
 
-    .card-header {
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card.is-down {
+      animation: blink-border 1.2s ease-in-out infinite;
+    }
+
+    @keyframes blink-border {
+      0%,100% {
+        border-color: rgba(248,113,113,0.15);
+        box-shadow: none;
+      }
+      50% {
+        border-color: rgba(248,113,113,0.7);
+        box-shadow: 0 0 18px rgba(248,113,113,0.2);
+      }
+    }
+
+    .card.is-down .status-ring {
+      animation: blink-ring 1.2s ease-in-out infinite;
+    }
+
+    @keyframes blink-ring {
+      0%,100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    .card-collapsed {
+      padding: 18px 22px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .card-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      pointer-events: none;
+    }
+
+    .status-ring {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .ring-up {
+      background: rgba(74,222,128,0.1);
+      color: var(--green);
+      border: 1.5px solid rgba(74,222,128,0.3);
+    }
+
+    .ring-down {
+      background: rgba(248,113,113,0.1);
+      color: var(--red);
+      border: 1.5px solid rgba(248,113,113,0.5);
+    }
+
+    .ring-warn {
+      background: rgba(251,191,36,0.1);
+      color: var(--yellow);
+      border: 1.5px solid rgba(251,191,36,0.3);
     }
 
     .server-name {
-      font-size: 24px;
-      font-weight: 800;
-    }
-
-    .domain {
-      margin-top: 6px;
-      color: #9cc8f5;
-      font-size: 14px;
-    }
-
-    .badge {
-      padding: 7px 13px;
-      border-radius: 999px;
-      font-weight: 800;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
-    .up {
-      background: rgba(34, 197, 94, 0.15);
-      color: var(--green);
-      border: 1px solid rgba(34, 197, 94, 0.35);
-    }
-
-    .down {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--red);
-      border: 1px solid rgba(239, 68, 68, 0.35);
-    }
-
-    .warning,
-    .starting {
-      background: rgba(245, 158, 11, 0.15);
-      color: var(--yellow);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-    }
-
-    .summary {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      margin-top: 22px;
-      color: #9cc8f5;
-      font-size: 15px;
-    }
-
-    .details {
-      display: none;
-      margin-top: 22px;
-      border-top: 1px solid var(--border);
-      padding-top: 16px;
-    }
-
-    .card.open .details {
-      display: block;
-    }
-
-    .service {
-      display: grid;
-      grid-template-columns: 70px 70px 90px 1fr;
-      gap: 12px;
-      align-items: center;
-      padding: 11px 0;
-      border-bottom: 1px solid rgba(51, 65, 85, 0.6);
-      font-size: 14px;
-    }
-
-    .service:last-child {
-      border-bottom: none;
-    }
-
-    a {
-      color: var(--blue);
-      text-decoration: none;
+      font-size: 16px;
       font-weight: 700;
     }
 
-    a:hover {
+    .server-domain {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .card-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      pointer-events: none;
+    }
+
+    .ports-pill {
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .chevron {
+      width: 20px;
+      height: 20px;
+      color: var(--muted);
+      transition: transform 0.25s;
+      flex-shrink: 0;
+    }
+
+    .card.open .chevron {
+      transform: rotate(180deg);
+    }
+
+    .card-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      border-top: 0 solid var(--border);
+      background: rgba(0,0,0,0.2);
+      padding: 0 22px;
+    }
+
+    .card.open .card-details {
+      max-height: 600px;
+      border-top: 1px solid var(--border);
+      padding: 18px 22px;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .meta-chip {
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .meta-chip span {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .services-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .service-row {
+      display: grid;
+      grid-template-columns: 54px 56px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      transition: border-color 0.15s;
+    }
+
+    .service-row:hover {
+      border-color: var(--border-hover);
+    }
+
+    .svc-port {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .svc-proto {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .svc-badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      justify-self: start;
+    }
+
+    .svc-up {
+      background: rgba(74,222,128,0.12);
+      color: var(--green);
+    }
+
+    .svc-down {
+      background: rgba(248,113,113,0.12);
+      color: var(--red);
+    }
+
+    .svc-warn {
+      background: rgba(251,191,36,0.12);
+      color: var(--yellow);
+    }
+
+    .svc-link {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .svc-link:hover {
       text-decoration: underline;
     }
 
+    .svc-http {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .timestamp {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
     .footer {
-      margin-top: 16px;
-      color: #9cc8f5;
-      font-size: 14px;
+      padding: 0 40px 40px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    #alert-banner {
+      display: none;
+      margin: 24px 40px 0;
+      padding: 14px 20px;
+      border-radius: 12px;
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.35);
+      cursor: pointer;
+      animation: banner-in 0.4s ease;
+    }
+
+    @keyframes banner-in {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #alert-banner.visible {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .alert-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(248,113,113,0.15);
+      border: 1.5px solid rgba(248,113,113,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--red);
+      animation: blink-ring 1.2s ease-in-out infinite;
+    }
+
+    .alert-body {
+      flex: 1;
+    }
+
+    .alert-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--red);
+      margin-bottom: 6px;
+    }
+
+    .alert-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .alert-list li {
+      font-size: 12px;
+      color: #fca5a5;
+    }
+
+    .alert-dismiss {
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(100,116,139,0.35);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 6px;
+      padding: 5px 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .alert-dismiss:hover {
+      background: rgba(100,116,139,0.55);
     }
 
     .error {
       color: var(--red);
-      padding: 20px;
-      border: 1px solid rgba(239, 68, 68, 0.4);
-      border-radius: 14px;
-      background: rgba(239, 68, 68, 0.08);
-      margin-top: 20px;
+      padding: 18px;
+      border: 1px solid rgba(248,113,113,0.35);
+      border-radius: 12px;
+      background: rgba(248,113,113,0.08);
+      margin-bottom: 16px;
+      font-size: 13px;
     }
 
-    @media (max-width: 700px) {
-      header,
-      main {
+    @media (max-width:600px) {
+      header, main, .footer, #alert-banner {
         padding-left: 20px;
         padding-right: 20px;
       }
 
-      .service {
-        grid-template-columns: 1fr;
+      .service-row {
+        grid-template-columns: 1fr 1fr;
         gap: 6px;
-      }
-
-      .summary {
-        flex-direction: column;
       }
     }
   </style>
@@ -221,14 +500,29 @@
 
 <body>
   <header>
-    <h1>FW Monitoring Dashboard</h1>
-    <p>Stato WebServiceHub Informatica</p>
+    <div class="header-inner">
+      <div class="header-dot" id="header-dot"></div>
+      <div>
+        <h1>FW Monitoring</h1>
+        <p>Stato WebServiceHub Informatica</p>
+      </div>
+    </div>
   </header>
+
+  <div id="alert-banner">
+    <div class="alert-icon">!</div>
+    <div class="alert-body">
+      <div class="alert-title">Attenzione — macchine in stato KO</div>
+      <ul class="alert-list" id="alert-list"></ul>
+    </div>
+    <button class="alert-dismiss" id="alert-dismiss">Nascondi</button>
+  </div>
 
   <main>
     <div id="dashboard"></div>
-    <div id="footer" class="footer"></div>
   </main>
+
+  <div id="footer" class="footer"></div>
 
   <script>
     const jsonFiles = [
@@ -247,98 +541,165 @@
       "Vimercate": ["as091pwc", "as092pwc", "as093pwc", "as094pwc"]
     };
 
-    function getOverallStatus(server) {
+    const cardMap = {};
+
+    function getStatus(server) {
       const services = server.services || [];
 
       const processUp = server.informatica_process_status === "UP";
-      const allPortsUp = services.every(s => s.status === "UP");
+      const allUp = services.every(p => p.status === "UP");
 
-      if (processUp && allPortsUp) return "UP";
+      if (processUp && allUp) return "UP";
 
-      if (!processUp || services.some(s => s.status === "DOWN")) {
+      if (!processUp || services.some(p => p.status === "DOWN")) {
         return "DOWN";
       }
 
-      return "WARNING";
+      return "WARN";
     }
 
-    function badgeClass(status) {
-      if (status === "UP") return "badge up";
-      if (status === "DOWN") return "badge down";
-      if (status === "STARTING") return "badge starting";
-      return "badge warning";
+    function ringClass(status) {
+      if (status === "UP") return "ring-up";
+      if (status === "DOWN") return "ring-down";
+      return "ring-warn";
     }
 
-    function renderServer(server) {
-      const overallStatus = getOverallStatus(server);
+    function svcClass(status) {
+      if (status === "UP") return "svc-up";
+      if (status === "DOWN") return "svc-down";
+      return "svc-warn";
+    }
+
+    function renderCard(server) {
+      const status = getStatus(server);
       const services = server.services || [];
+      const upCount = services.filter(s => s.status === "UP").length;
+      const total = services.length;
+      const icon = status === "UP" ? "↑" : status === "DOWN" ? "↓" : "!";
+
+      const servicesHTML = services.map(service => `
+        <div class="service-row">
+          <span class="svc-port">${service.port}</span>
+          <span class="svc-proto">${service.protocol}</span>
+          <span class="svc-badge ${svcClass(service.status)}">${service.status}</span>
+          <span>
+            <a class="svc-link" href="${service.url}" target="_blank" onclick="event.stopPropagation()">Test URL</a>
+            <span class="svc-http"> · HTTP ${service.http_code}</span>
+          </span>
+        </div>
+      `).join("");
 
       const card = document.createElement("div");
-      card.className = "card";
+      card.className = "card" + (status === "DOWN" ? " is-down" : "");
+      card.id = "card-" + server.host;
 
       card.innerHTML = `
-        <div class="card-header">
-          <div>
-            <div class="server-name">${server.host}</div>
-            <div class="domain">${server.domain}</div>
+        <div class="card-collapsed">
+          <div class="card-left">
+            <div class="status-ring ${ringClass(status)}">${icon}</div>
+            <div>
+              <div class="server-name">${server.host}</div>
+              <div class="server-domain">${server.domain}</div>
+            </div>
           </div>
-          <div class="${badgeClass(overallStatus)}">${overallStatus}</div>
+
+          <div class="card-right">
+            <div class="ports-pill" style="color:${upCount === total ? "var(--green)" : status === "DOWN" ? "var(--red)" : "var(--yellow)"}">
+              ${upCount}/${total} porte
+            </div>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
         </div>
 
-        <div class="summary">
-          <span>Porte UP: ${services.filter(s => s.status === "UP").length}/${services.length}</span>
-          <span>${server.timestamp}</span>
-        </div>
-
-        <div class="details">
-          <div class="summary">
-            <span>SSH: ${server.ssh_status}</span>
-            <span>Informatica: ${server.informatica_process_status}</span>
+        <div class="card-details">
+          <div class="meta-row">
+            <div class="meta-chip">SSH <span>${server.ssh_status}</span></div>
+            <div class="meta-chip">
+              Informatica
+              <span style="color:${server.informatica_process_status === "UP" ? "var(--green)" : "var(--red)"}">
+                ${server.informatica_process_status}
+              </span>
+            </div>
           </div>
 
-          <div style="margin-top:16px;">
-            ${services.map(service => `
-              <div class="service">
-                <div><strong>${service.port}</strong></div>
-                <div>${service.protocol.toUpperCase()}</div>
-                <div class="${badgeClass(service.status)}">${service.status}</div>
-                <div>
-                  <a href="${service.url}" target="_blank">Test URL</a>
-                  <span style="color:#94a3b8;"> · HTTP ${service.http_code}</span>
-                </div>
-              </div>
-            `).join("")}
-          </div>
+          <div class="services-list">${servicesHTML}</div>
+          <div class="timestamp">${server.timestamp}</div>
         </div>
       `;
 
-      card.addEventListener("click", (event) => {
-        if (event.target.tagName.toLowerCase() === "a") return;
+      card.addEventListener("mousemove", e => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty("--mx", (e.clientX - r.left) + "px");
+        card.style.setProperty("--my", (e.clientY - r.top) + "px");
+      });
+
+      card.addEventListener("click", e => {
+        e.stopPropagation();
         card.classList.toggle("open");
       });
 
+      cardMap[server.host] = card;
       return card;
     }
 
-    function renderGroup(groupName, groupServers, dashboard) {
+    function renderGroup(name, servers, dashboard) {
       const section = document.createElement("section");
       section.className = "site-section";
 
       section.innerHTML = `
-        <div class="section-title">
-          <span>${groupName}</span>
-          <small>${groupServers.length} server</small>
+        <div class="section-header">
+          <span class="section-label">${name}</span>
+          <div class="section-line"></div>
+          <span class="section-count">${servers.length} server</span>
         </div>
         <div class="grid"></div>
       `;
 
       const grid = section.querySelector(".grid");
 
-      groupServers
+      servers
         .sort((a, b) => a.host.localeCompare(b.host))
-        .forEach(server => grid.appendChild(renderServer(server)));
+        .forEach(server => grid.appendChild(renderCard(server)));
 
       dashboard.appendChild(section);
+    }
+
+    function renderAlerts(servers) {
+      const downServers = servers.filter(s => getStatus(s) === "DOWN");
+
+      if (downServers.length === 0) return;
+
+      document.getElementById("header-dot").classList.add("has-down");
+
+      const alertList = document.getElementById("alert-list");
+
+      downServers.forEach(server => {
+        const downPorts = server.services.filter(p => p.status === "DOWN").length;
+
+        const li = document.createElement("li");
+        li.textContent = `${server.host} — Informatica: ${server.informatica_process_status} · ${downPorts} porta/e KO`;
+        alertList.appendChild(li);
+      });
+
+      const banner = document.getElementById("alert-banner");
+      banner.classList.add("visible");
+
+      document.getElementById("alert-dismiss").addEventListener("click", e => {
+        e.stopPropagation();
+        banner.classList.remove("visible");
+      });
+
+      banner.addEventListener("click", () => {
+        const first = cardMap[downServers[0].host];
+
+        if (first) {
+          first.scrollIntoView({ behavior: "smooth", block: "center" });
+          first.classList.add("open");
+        }
+      });
     }
 
     async function loadDashboard() {
@@ -397,19 +758,19 @@
       }
 
       if (errors.length > 0) {
-        const errorContainer = document.createElement("div");
-        errorContainer.innerHTML = errors.join("");
-        dashboard.appendChild(errorContainer);
+        dashboard.insertAdjacentHTML("beforeend", errors.join(""));
       }
 
       if (servers.length > 0) {
-        const latestTimestamp = servers
+        const latest = servers
           .map(s => s.timestamp)
           .sort()
           .reverse()[0];
 
-        footer.textContent = `Ultimo aggiornamento dati: ${latestTimestamp}`;
+        footer.textContent = "Ultimo aggiornamento: " + latest;
       }
+
+      renderAlerts(servers);
     }
 
     loadDashboard();
