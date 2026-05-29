@@ -1,0 +1,15 @@
+name: Test OneDrive download
+
+on:
+  workflow_dispatch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download JSON from OneDrive
+        run: |
+          curl -L "https://myoffice.accenture.com/personal/nicolo_bevilacqua_accenture_com/_layouts/15/download.aspx?UniqueId=4e36a728ae924b629cce21d8eee5bae8&e=Xi70h1" -o test.json
+          echo "FILE SCARICATO:"
+          cat test.json
