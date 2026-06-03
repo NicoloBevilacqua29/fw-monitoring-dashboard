@@ -84,8 +84,19 @@
       padding: 36px 40px 60px;
     }
 
+    .monitor-block {
+      margin-bottom: 64px;
+    }
+
+    .monitor-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 22px;
+      letter-spacing: -0.2px;
+    }
+
     .site-section {
-      margin-bottom: 48px;
+      margin-bottom: 42px;
     }
 
     .section-header {
@@ -136,28 +147,9 @@
       position: relative;
     }
 
-    .card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 16px;
-      opacity: 0;
-      transition: opacity 0.3s;
-      background: radial-gradient(
-        600px at var(--mx,50%) var(--my,50%),
-        rgba(255,255,255,0.03),
-        transparent 60%
-      );
-      pointer-events: none;
-    }
-
     .card:hover {
       border-color: var(--border-hover);
       transform: translateY(-1px);
-    }
-
-    .card:hover::before {
-      opacity: 1;
     }
 
     .card.is-down {
@@ -173,15 +165,6 @@
         border-color: rgba(248,113,113,0.7);
         box-shadow: 0 0 18px rgba(248,113,113,0.2);
       }
-    }
-
-    .card.is-down .status-ring {
-      animation: blink-ring 1.2s ease-in-out infinite;
-    }
-
-    @keyframes blink-ring {
-      0%,100% { opacity: 0.4; }
-      50% { opacity: 1; }
     }
 
     .card-collapsed {
@@ -254,6 +237,7 @@
       border: 1px solid var(--border);
       padding: 4px 10px;
       border-radius: 999px;
+      white-space: nowrap;
     }
 
     .chevron {
@@ -278,7 +262,7 @@
     }
 
     .card.open .card-details {
-      max-height: 600px;
+      max-height: 1200px;
       border-top: 1px solid var(--border);
       padding: 18px 22px;
     }
@@ -323,24 +307,18 @@
       background: var(--surface);
       border: 1px solid var(--border);
       font-size: 13px;
-      transition: border-color 0.15s;
     }
 
-    .service-row:hover {
-      border-color: var(--border-hover);
-    }
-
-    .svc-port {
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .svc-proto {
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
+    .cdc-row {
+      display: grid;
+      grid-template-columns: 1fr 120px 80px 90px;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 13px;
     }
 
     .svc-badge {
@@ -349,6 +327,7 @@
       font-size: 11px;
       font-weight: 700;
       justify-self: start;
+      white-space: nowrap;
     }
 
     .svc-up {
@@ -373,15 +352,6 @@
       text-decoration: none;
     }
 
-    .svc-link:hover {
-      text-decoration: underline;
-    }
-
-    .svc-http {
-      color: var(--muted);
-      font-size: 11px;
-    }
-
     .timestamp {
       color: var(--muted);
       font-size: 11px;
@@ -404,12 +374,6 @@
       background: rgba(248,113,113,0.08);
       border: 1px solid rgba(248,113,113,0.35);
       cursor: pointer;
-      animation: banner-in 0.4s ease;
-    }
-
-    @keyframes banner-in {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     #alert-banner.visible {
@@ -431,11 +395,6 @@
       font-size: 15px;
       font-weight: 900;
       color: var(--red);
-      animation: blink-ring 1.2s ease-in-out infinite;
-    }
-
-    .alert-body {
-      flex: 1;
     }
 
     .alert-title {
@@ -470,10 +429,6 @@
       flex-shrink: 0;
     }
 
-    .alert-dismiss:hover {
-      background: rgba(100,116,139,0.55);
-    }
-
     .error {
       color: var(--red);
       padding: 18px;
@@ -490,290 +445,580 @@
         padding-right: 20px;
       }
 
-      .service-row {
-        grid-template-columns: 1fr 1fr;
+      .service-row,
+      .cdc-row {
+        grid-template-columns: 1fr;
         gap: 6px;
       }
     }
   </style>
 </head>
-
 <body>
-  <header>
-    <div class="header-inner">
-      <div class="header-dot" id="header-dot"></div>
-      <div>
-        <h1>FW Monitoring</h1>
-        <p>Stato WebServiceHub Informatica</p>
-      </div>
-    </div>
-  </header>
 
-  <div id="alert-banner">
-    <div class="alert-icon">!</div>
-    <div class="alert-body">
-      <div class="alert-title">Attenzione — macchine in stato KO</div>
-      <ul class="alert-list" id="alert-list"></ul>
+<div id="alert-banner">
+  <div class="alert-icon">!</div>
+
+  <div class="alert-body">
+    <div class="alert-title">
+      Attenzione — sistemi in stato KO
     </div>
-    <button class="alert-dismiss" id="alert-dismiss">Nascondi</button>
+
+    <ul class="alert-list" id="alert-list"></ul>
   </div>
 
-  <main>
-    <div id="dashboard"></div>
-  </main>
+  <button class="alert-dismiss" id="alert-dismiss">
+    Nascondi
+  </button>
+</div>
 
-  <div id="footer" class="footer"></div>
+<header>
+  <div class="header-inner">
+    <div class="header-dot" id="header-dot"></div>
 
-  <script>
-    const jsonFiles = [
-      "data/infa_ws_status_as008pwc.json",
-      "data/infa_ws_status_as009pwc.json",
-      "data/infa_ws_status_as010pwc.json",
-      "data/infa_ws_status_as011pwc.json",
-      "data/infa_ws_status_as091pwc.json",
-      "data/infa_ws_status_as092pwc.json",
-      "data/infa_ws_status_as093pwc.json",
-      "data/infa_ws_status_as094pwc.json"
-    ];
+    <div>
+      <h1>FW Monitoring</h1>
+      <p>WebServiceHub & CDC Monitoring</p>
+    </div>
+  </div>
+</header>
 
-    const serverGroups = {
-      "Bernina": ["as008pwc", "as009pwc", "as010pwc", "as011pwc"],
-      "Vimercate": ["as091pwc", "as092pwc", "as093pwc", "as094pwc"]
-    };
+<main>
 
-    const cardMap = {};
+  <div class="monitor-block">
+    <div class="monitor-title">
+      WebServiceHub Monitoring
+    </div>
 
-    function getStatus(server) {
-      const services = server.services || [];
+    <div id="ws-dashboard"></div>
+  </div>
 
-      const processUp = server.informatica_process_status === "UP";
-      const allUp = services.every(p => p.status === "UP");
+  <div class="monitor-block">
+    <div class="monitor-title">
+      CDC Monitoring
+    </div>
 
-      if (processUp && allUp) return "UP";
+    <div id="cdc-dashboard"></div>
+  </div>
 
-      if (!processUp || services.some(p => p.status === "DOWN")) {
-        return "DOWN";
-      }
+</main>
 
-      return "WARN";
-    }
+<div id="footer" class="footer"></div>
 
-    function ringClass(status) {
-      if (status === "UP") return "ring-up";
-      if (status === "DOWN") return "ring-down";
-      return "ring-warn";
-    }
+<script>
 
-    function svcClass(status) {
-      if (status === "UP") return "svc-up";
-      if (status === "DOWN") return "svc-down";
-      return "svc-warn";
-    }
+const WS_GROUPS = {
+  Bernina: [
+    "as008pwc",
+    "as009pwc",
+    "as010pwc",
+    "as011pwc"
+  ],
 
-    function renderCard(server) {
-      const status = getStatus(server);
-      const services = server.services || [];
-      const upCount = services.filter(s => s.status === "UP").length;
-      const total = services.length;
-      const icon = status === "UP" ? "↑" : status === "DOWN" ? "↓" : "!";
+  Vimercate: [
+    "as091pwc",
+    "as092pwc",
+    "as093pwc",
+    "as094pwc"
+  ]
+};
 
-      const servicesHTML = services.map(service => `
-        <div class="service-row">
-          <span class="svc-port">${service.port}</span>
-          <span class="svc-proto">${service.protocol}</span>
-          <span class="svc-badge ${svcClass(service.status)}">${service.status}</span>
+const CDC_GROUPS = {
+  "Informatica 9.5": [
+    "as001pwc",
+    "as002pwc"
+  ],
+
+  "Informatica 9.6": [
+    "as003pwc",
+    "as004pwc"
+  ],
+
+  "Informatica 10.2 HOTFIX": [
+    "as013pwc",
+    "as014pwc"
+  ]
+};
+
+function svcClass(status) {
+
+  if (
+    status === "UP" ||
+    status === "RUNNING"
+  ) {
+    return "svc-up";
+  }
+
+  if (
+    status === "WARNING" ||
+    status === "STARTING" ||
+    status === "RUNNING_RECENT"
+  ) {
+    return "svc-warn";
+  }
+
+  return "svc-down";
+}
+
+function ringClass(status) {
+
+  if (status === "UP") {
+    return "ring-up";
+  }
+
+  if (status === "WARNING") {
+    return "ring-warn";
+  }
+
+  return "ring-down";
+}
+
+function wsStatus(server) {
+
+  const infa =
+    server.informatica_process_status === "UP";
+
+  const ports =
+    server.services.every(
+      x => x.status === "UP"
+    );
+
+  if (infa && ports) {
+    return "UP";
+  }
+
+  return "DOWN";
+}
+
+function cdcStatus(server) {
+
+  return (
+    server.cdc_summary_status ||
+    "DOWN"
+  );
+}
+
+function createSection(title,count) {
+
+  const section =
+    document.createElement("section");
+
+  section.className = "site-section";
+
+  section.innerHTML = `
+    <div class="section-header">
+      <span class="section-label">${title}</span>
+      <div class="section-line"></div>
+      <span class="section-count">${count}</span>
+    </div>
+    <div class="grid"></div>
+  `;
+
+  return section;
+}
+
+function renderWS(server) {
+
+  const status = wsStatus(server);
+
+  const up =
+    server.services.filter(
+      x => x.status === "UP"
+    ).length;
+
+  const total =
+    server.services.length;
+
+  const services =
+    server.services.map(s => `
+      <div class="service-row">
+
+        <span>${s.port}</span>
+
+        <span>${s.protocol}</span>
+
+        <span class="svc-badge ${svcClass(s.status)}">
+          ${s.status}
+        </span>
+
+        <a
+          class="svc-link"
+          href="${s.url}"
+          target="_blank"
+          onclick="event.stopPropagation()"
+        >
+          Test URL
+        </a>
+
+      </div>
+    `).join("");
+
+  return `
+  <div class="card ${status !== 'UP' ? 'is-down':''}">
+    <div class="card-collapsed">
+
+      <div class="card-left">
+
+        <div class="status-ring ${ringClass(status)}">
+          ${status === 'UP' ? '↑' : '↓'}
+        </div>
+
+        <div>
+          <div class="server-name">
+            ${server.host}
+          </div>
+
+          <div class="server-domain">
+            ${server.domain}
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card-right">
+
+        <div class="ports-pill">
+          ${up}/${total} porte
+        </div>
+
+        <div class="chevron">⌄</div>
+
+      </div>
+
+    </div>
+
+    <div class="card-details">
+
+      <div class="meta-row">
+
+        <div class="meta-chip">
+          SSH
+          <span>${server.ssh_status}</span>
+        </div>
+
+        <div class="meta-chip">
+          Informatica
           <span>
-            <a class="svc-link" href="${service.url}" target="_blank" onclick="event.stopPropagation()">Test URL</a>
-            <span class="svc-http"> · HTTP ${service.http_code}</span>
+            ${server.informatica_process_status}
           </span>
         </div>
-      `).join("");
 
-      const card = document.createElement("div");
-      card.className = "card" + (status === "DOWN" ? " is-down" : "");
-      card.id = "card-" + server.host;
+      </div>
 
-      card.innerHTML = `
-        <div class="card-collapsed">
-          <div class="card-left">
-            <div class="status-ring ${ringClass(status)}">${icon}</div>
-            <div>
-              <div class="server-name">${server.host}</div>
-              <div class="server-domain">${server.domain}</div>
-            </div>
-          </div>
+      <div class="services-list">
+        ${services}
+      </div>
 
-          <div class="card-right">
-            <div class="ports-pill" style="color:${upCount === total ? "var(--green)" : status === "DOWN" ? "var(--red)" : "var(--yellow)"}">
-              ${upCount}/${total} porte
-            </div>
-            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </div>
+      <div class="timestamp">
+        ${server.timestamp}
+      </div>
+
+    </div>
+  </div>
+  `;
+}
+
+function renderCDC(server) {
+
+  const status =
+    cdcStatus(server);
+
+  const rows =
+    (server.cdc || [])
+    .map(c => `
+      <div class="cdc-row">
+
+        <div>
+          ${c.name}
         </div>
 
-        <div class="card-details">
-          <div class="meta-row">
-            <div class="meta-chip">SSH <span>${server.ssh_status}</span></div>
-            <div class="meta-chip">
-              Informatica
-              <span style="color:${server.informatica_process_status === "UP" ? "var(--green)" : "var(--red)"}">
-                ${server.informatica_process_status}
-              </span>
-            </div>
+        <div class="svc-badge ${svcClass(c.status)}">
+          ${c.status}
+        </div>
+
+        <div>
+          PID ${c.pid ?? '-'}
+        </div>
+
+        <div>
+          ${c.elapsed ?? '-'}
+        </div>
+
+      </div>
+    `)
+    .join("");
+
+  return `
+  <div class="card ${status !== 'UP' ? 'is-down':''}">
+    <div class="card-collapsed">
+
+      <div class="card-left">
+
+        <div class="status-ring ${ringClass(status)}">
+          ${status === 'UP' ? '↑' :
+            status === 'WARNING' ? '!' : '↓'}
+        </div>
+
+        <div>
+
+          <div class="server-name">
+            ${server.host}
           </div>
 
-          <div class="services-list">${servicesHTML}</div>
-          <div class="timestamp">${server.timestamp}</div>
+          <div class="server-domain">
+            ${server.informatica_version}
+          </div>
+
         </div>
-      `;
 
-      card.addEventListener("mousemove", e => {
-        const r = card.getBoundingClientRect();
-        card.style.setProperty("--mx", (e.clientX - r.left) + "px");
-        card.style.setProperty("--my", (e.clientY - r.top) + "px");
-      });
+      </div>
 
-      card.addEventListener("click", e => {
-        e.stopPropagation();
-        card.classList.toggle("open");
-      });
+      <div class="card-right">
 
-      cardMap[server.host] = card;
-      return card;
-    }
-
-    function renderGroup(name, servers, dashboard) {
-      const section = document.createElement("section");
-      section.className = "site-section";
-
-      section.innerHTML = `
-        <div class="section-header">
-          <span class="section-label">${name}</span>
-          <div class="section-line"></div>
-          <span class="section-count">${servers.length} server</span>
+        <div class="ports-pill">
+          ${server.cdc_running}/${server.cdc_total} CDC
         </div>
-        <div class="grid"></div>
-      `;
 
-      const grid = section.querySelector(".grid");
+        <div class="chevron">⌄</div>
 
-      servers
-        .sort((a, b) => a.host.localeCompare(b.host))
-        .forEach(server => grid.appendChild(renderCard(server)));
+      </div>
 
-      dashboard.appendChild(section);
+    </div>
+
+    <div class="card-details">
+
+      <div class="meta-row">
+
+        <div class="meta-chip">
+          Catalina
+          <span>
+            ${server.catalina_status}
+          </span>
+        </div>
+
+        <div class="meta-chip">
+          Pair
+          <span>
+            ${server.pair_host}
+          </span>
+        </div>
+
+      </div>
+
+      <div class="services-list">
+        ${rows}
+      </div>
+
+      <div class="timestamp">
+        ${server.timestamp}
+      </div>
+
+    </div>
+
+  </div>
+  `;
+}
+
+async function loadJSON(path) {
+
+  try {
+
+    const r = await fetch(path);
+
+    if (!r.ok) {
+      return null;
     }
 
-    function renderAlerts(servers) {
-      const downServers = servers.filter(s => getStatus(s) === "DOWN");
+    return await r.json();
 
-      if (downServers.length === 0) return;
+  } catch {
 
-      document.getElementById("header-dot").classList.add("has-down");
+    return null;
+  }
+}
 
-      const alertList = document.getElementById("alert-list");
+async function init() {
 
-      downServers.forEach(server => {
-        const downPorts = server.services.filter(p => p.status === "DOWN").length;
+  const wsFiles = [
+    "as008pwc","as009pwc","as010pwc","as011pwc",
+    "as091pwc","as092pwc","as093pwc","as094pwc"
+  ];
 
-        const li = document.createElement("li");
-        li.textContent = `${server.host} — Informatica: ${server.informatica_process_status} · ${downPorts} porta/e KO`;
-        alertList.appendChild(li);
-      });
+  const cdcFiles = [
+    "as001pwc","as002pwc",
+    "as003pwc","as004pwc",
+    "as013pwc","as014pwc"
+  ];
 
-      const banner = document.getElementById("alert-banner");
-      banner.classList.add("visible");
+  const wsData = [];
+  const cdcData = [];
 
-      document.getElementById("alert-dismiss").addEventListener("click", e => {
-        e.stopPropagation();
-        banner.classList.remove("visible");
-      });
+  for (const host of wsFiles) {
 
-      banner.addEventListener("click", () => {
-        const first = cardMap[downServers[0].host];
-
-        if (first) {
-          first.scrollIntoView({ behavior: "smooth", block: "center" });
-          first.classList.add("open");
-        }
-      });
-    }
-
-    async function loadDashboard() {
-      const dashboard = document.getElementById("dashboard");
-      const footer = document.getElementById("footer");
-
-      dashboard.innerHTML = "";
-
-      const servers = [];
-      const errors = [];
-
-      for (const file of jsonFiles) {
-        try {
-          const response = await fetch(file, { cache: "no-store" });
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-          }
-
-          const text = await response.text();
-
-          try {
-            servers.push(JSON.parse(text));
-          } catch (parseError) {
-            errors.push(`
-              <div class="error">
-                JSON non valido:<br>
-                <strong>${file}</strong><br><br>
-                ${parseError.message}
-              </div>
-            `);
-          }
-
-        } catch (error) {
-          errors.push(`
-            <div class="error">
-              Errore caricamento file:<br>
-              <strong>${file}</strong><br><br>
-              ${error.message}
-            </div>
-          `);
-        }
-      }
-
-      Object.entries(serverGroups).forEach(([groupName, hosts]) => {
-        const groupServers = servers.filter(server => hosts.includes(server.host));
-        renderGroup(groupName, groupServers, dashboard);
-      });
-
-      const unknownServers = servers.filter(server =>
-        !Object.values(serverGroups).flat().includes(server.host)
+    const d =
+      await loadJSON(
+        `data/infa_ws_status_${host}.json`
       );
 
-      if (unknownServers.length > 0) {
-        renderGroup("Altri server", unknownServers, dashboard);
-      }
+    if (d) wsData.push(d);
+  }
 
-      if (errors.length > 0) {
-        dashboard.insertAdjacentHTML("beforeend", errors.join(""));
-      }
+  for (const host of cdcFiles) {
 
-      if (servers.length > 0) {
-        const latest = servers
-          .map(s => s.timestamp)
-          .sort()
-          .reverse()[0];
+    const d =
+      await loadJSON(
+        `data/infa_cdc_status_${host}.json`
+      );
 
-        footer.textContent = "Ultimo aggiornamento: " + latest;
-      }
+    if (d) cdcData.push(d);
+  }
 
-      renderAlerts(servers);
+  const alerts = [];
+
+  wsData.forEach(x => {
+    if (wsStatus(x) !== "UP") {
+      alerts.push(
+        `${x.host} WebServiceHub`
+      );
     }
+  });
 
-    loadDashboard();
-  </script>
+  cdcData.forEach(x => {
+    if (cdcStatus(x) !== "UP") {
+      alerts.push(
+        `${x.host} CDC`
+      );
+    }
+  });
+
+  if (alerts.length > 0) {
+
+    document
+      .getElementById("header-dot")
+      .classList.add("has-down");
+
+    document
+      .getElementById("alert-banner")
+      .classList.add("visible");
+
+    const ul =
+      document.getElementById("alert-list");
+
+    alerts.forEach(a => {
+
+      const li =
+        document.createElement("li");
+
+      li.textContent = a;
+
+      ul.appendChild(li);
+
+    });
+  }
+
+  document
+    .getElementById("alert-dismiss")
+    .onclick = () =>
+      document
+        .getElementById("alert-banner")
+        .remove();
+
+  const wsContainer =
+    document.getElementById(
+      "ws-dashboard"
+    );
+
+  Object.entries(WS_GROUPS)
+    .forEach(([name,hosts]) => {
+
+      const servers =
+        wsData.filter(
+          x => hosts.includes(x.host)
+        );
+
+      const section =
+        createSection(
+          name,
+          `${servers.length} server`
+        );
+
+      const grid =
+        section.querySelector(".grid");
+
+      servers.forEach(s => {
+
+        const wrap =
+          document.createElement("div");
+
+        wrap.innerHTML =
+          renderWS(s);
+
+        const card =
+          wrap.firstElementChild;
+
+        card.onclick =
+          () => card.classList.toggle("open");
+
+        grid.appendChild(card);
+
+      });
+
+      wsContainer.appendChild(section);
+
+    });
+
+  const cdcContainer =
+    document.getElementById(
+      "cdc-dashboard"
+    );
+
+  Object.entries(CDC_GROUPS)
+    .forEach(([name,hosts]) => {
+
+      const servers =
+        cdcData.filter(
+          x => hosts.includes(x.host)
+        );
+
+      const section =
+        createSection(
+          name,
+          `${servers.length} server`
+        );
+
+      const grid =
+        section.querySelector(".grid");
+
+      servers.forEach(s => {
+
+        const wrap =
+          document.createElement("div");
+
+        wrap.innerHTML =
+          renderCDC(s);
+
+        const card =
+          wrap.firstElementChild;
+
+        card.onclick =
+          () => card.classList.toggle("open");
+
+        grid.appendChild(card);
+
+      });
+
+      cdcContainer.appendChild(section);
+
+    });
+
+  document
+    .getElementById("footer")
+    .textContent =
+      "Dashboard aggiornata automaticamente da Outlook + GitHub";
+}
+
+init();
+
+</script>
+
 </body>
 </html>
