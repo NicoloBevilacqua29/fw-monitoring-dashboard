@@ -3,7 +3,7 @@
   "domain": "as003pwc.intranet.fw",
   "pair_host": "as004pwc",
   "informatica_version": "9.6",
-  "timestamp": "2026-06-03 15:47:42",
+  "timestamp": "2026-06-03 16:03:51",
   "ssh_status": "OK",
   "catalina_status": "UP",
   "catalina_process_count": 1,
@@ -17,7 +17,7 @@
     {
       "name": "WF_GRN_CDC",
       "status": "RUNNING_RECENT",
-      "pid": 991,
+      "pid": 23225,
       "elapsed": "00:01",
       "elapsed_seconds": 1,
       "alert": true
@@ -26,7 +26,7 @@
     {
       "name": "WF_GRN_NGN_GPON_CDC",
       "status": "RUNNING_RECENT",
-      "pid": 991,
+      "pid": 23225,
       "elapsed": "00:01",
       "elapsed_seconds": 1,
       "alert": true
@@ -35,7 +35,7 @@
     {
       "name": "WF_OLOGW_GRN_CDC",
       "status": "RUNNING_RECENT",
-      "pid": 991,
+      "pid": 23225,
       "elapsed": "00:01",
       "elapsed_seconds": 1,
       "alert": true
@@ -44,7 +44,7 @@
     {
       "name": "WF_TED_GRN_CDC",
       "status": "RUNNING_RECENT",
-      "pid": 991,
+      "pid": 23225,
       "elapsed": "00:01",
       "elapsed_seconds": 1,
       "alert": true
@@ -53,7 +53,7 @@
     {
       "name": "WF_GRNENT_CDC",
       "status": "RUNNING_RECENT",
-      "pid": 991,
+      "pid": 23225,
       "elapsed": "00:01",
       "elapsed_seconds": 1,
       "alert": true
@@ -62,7 +62,7 @@
     {
       "name": "WF_OSS_GPON_STS_CDC",
       "status": "RUNNING_RECENT",
-      "pid": 991,
+      "pid": 23225,
       "elapsed": "00:01",
       "elapsed_seconds": 1,
       "alert": true
@@ -71,36 +71,36 @@
     {
       "name": "WF_OSS_OLO2OLO_CDC",
       "status": "RUNNING_RECENT",
-      "pid": 991,
-      "elapsed": "00:01",
-      "elapsed_seconds": 1,
+      "pid": 23225,
+      "elapsed": "00:02",
+      "elapsed_seconds": 2,
       "alert": true
     }
     ,
     {
       "name": "WF_OSS_TRANSFORMATION_CDC",
       "status": "RUNNING_RECENT",
-      "pid": 991,
-      "elapsed": "00:01",
-      "elapsed_seconds": 1,
+      "pid": 23225,
+      "elapsed": "00:02",
+      "elapsed_seconds": 2,
       "alert": true
     }
     ,
     {
       "name": "WF_OSS_TRANSFORMATION_CDC_NDS",
       "status": "RUNNING_RECENT",
-      "pid": 991,
-      "elapsed": "00:01",
-      "elapsed_seconds": 1,
+      "pid": 23225,
+      "elapsed": "00:02",
+      "elapsed_seconds": 2,
       "alert": true
     }
     ,
     {
       "name": "WF_OSS_TRANSFORMATION_CDC_OLOGW",
       "status": "RUNNING_RECENT",
-      "pid": 991,
-      "elapsed": "00:01",
-      "elapsed_seconds": 1,
+      "pid": 23225,
+      "elapsed": "00:02",
+      "elapsed_seconds": 2,
       "alert": true
     }
   ]

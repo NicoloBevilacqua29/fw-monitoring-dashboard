@@ -3,13 +3,13 @@
   "domain": "as002pwc.intranet.fw",
   "pair_host": "as001pwc",
   "informatica_version": "9.5",
-  "timestamp": "2026-06-03 15:47:41",
+  "timestamp": "2026-06-03 16:03:50",
   "ssh_status": "OK",
   "catalina_status": "UP",
   "catalina_process_count": 4,
   "cdc_summary_status": "WARNING",
-  "cdc_running": 2,
-  "cdc_recent": 4,
+  "cdc_running": 0,
+  "cdc_recent": 6,
   "cdc_stopped": 0,
   "cdc_total": 6,
   "recent_threshold_seconds": 7200,
@@ -17,16 +17,16 @@
     {
       "name": "wf_m_INVOICE_to_ODHE_SRC",
       "status": "RUNNING_RECENT",
-      "pid": 27840,
-      "elapsed": "00:01",
-      "elapsed_seconds": 1,
+      "pid": 1870,
+      "elapsed": "00:00",
+      "elapsed_seconds": 0,
       "alert": true
     }
     ,
     {
       "name": "wf_m_OMC_to_ODHE_to_ODHE_SRC",
       "status": "RUNNING_RECENT",
-      "pid": 27840,
+      "pid": 1870,
       "elapsed": "00:01",
       "elapsed_seconds": 1,
       "alert": true
@@ -35,7 +35,7 @@
     {
       "name": "wf_m_OMC_to_OMC_STG",
       "status": "RUNNING_RECENT",
-      "pid": 27840,
+      "pid": 1870,
       "elapsed": "00:01",
       "elapsed_seconds": 1,
       "alert": true
@@ -43,17 +43,17 @@
     ,
     {
       "name": "wf_m_OMC_to_SRC_STG",
-      "status": "RUNNING",
-      "pid": 17036,
-      "elapsed": "19-00:20:01",
-      "elapsed_seconds": 1642801,
-      "alert": false
+      "status": "RUNNING_RECENT",
+      "pid": 1870,
+      "elapsed": "00:01",
+      "elapsed_seconds": 1,
+      "alert": true
     }
     ,
     {
       "name": "wf_m_OMF_to_ODHE_SRC",
       "status": "RUNNING_RECENT",
-      "pid": 27840,
+      "pid": 1870,
       "elapsed": "00:01",
       "elapsed_seconds": 1,
       "alert": true
@@ -61,11 +61,11 @@
     ,
     {
       "name": "wf_m_OMF_to_OMF_STG",
-      "status": "RUNNING",
-      "pid": 16800,
-      "elapsed": "19-00:20:25",
-      "elapsed_seconds": 1642825,
-      "alert": false
+      "status": "RUNNING_RECENT",
+      "pid": 1870,
+      "elapsed": "00:01",
+      "elapsed_seconds": 1,
+      "alert": true
     }
   ]
 }

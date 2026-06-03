@@ -3,13 +3,13 @@
   "domain": "as004pwc.intranet.fw",
   "pair_host": "as003pwc",
   "informatica_version": "9.6",
-  "timestamp": "2026-06-03 15:47:42",
+  "timestamp": "2026-06-03 16:03:52",
   "ssh_status": "OK",
   "catalina_status": "UP",
   "catalina_process_count": 2,
-  "cdc_summary_status": "UP",
-  "cdc_running": 10,
-  "cdc_recent": 0,
+  "cdc_summary_status": "WARNING",
+  "cdc_running": 9,
+  "cdc_recent": 1,
   "cdc_stopped": 0,
   "cdc_total": 10,
   "recent_threshold_seconds": 7200,
@@ -18,8 +18,8 @@
       "name": "WF_GRN_CDC",
       "status": "RUNNING",
       "pid": 8138,
-      "elapsed": "21-15:09:49",
-      "elapsed_seconds": null,
+      "elapsed": "21-15:25:59",
+      "elapsed_seconds": 1869959,
       "alert": false
     }
     ,
@@ -27,8 +27,8 @@
       "name": "WF_GRN_NGN_GPON_CDC",
       "status": "RUNNING",
       "pid": 8000,
-      "elapsed": "21-15:10:06",
-      "elapsed_seconds": 1869006,
+      "elapsed": "21-15:26:16",
+      "elapsed_seconds": 1869976,
       "alert": false
     }
     ,
@@ -36,8 +36,8 @@
       "name": "WF_OLOGW_GRN_CDC",
       "status": "RUNNING",
       "pid": 11162,
-      "elapsed": "21-15:04:34",
-      "elapsed_seconds": 1868674,
+      "elapsed": "21-15:20:44",
+      "elapsed_seconds": 1869644,
       "alert": false
     }
     ,
@@ -45,8 +45,8 @@
       "name": "WF_TED_GRN_CDC",
       "status": "RUNNING",
       "pid": 10001,
-      "elapsed": "21-15:07:00",
-      "elapsed_seconds": 1868820,
+      "elapsed": "21-15:23:10",
+      "elapsed_seconds": 1869790,
       "alert": false
     }
     ,
@@ -54,8 +54,8 @@
       "name": "WF_GRNENT_CDC",
       "status": "RUNNING",
       "pid": 6644,
-      "elapsed": "21-15:12:07",
-      "elapsed_seconds": 1869127,
+      "elapsed": "21-15:28:17",
+      "elapsed_seconds": 1870097,
       "alert": false
     }
     ,
@@ -63,26 +63,26 @@
       "name": "WF_OSS_GPON_STS_CDC",
       "status": "RUNNING",
       "pid": 9418,
-      "elapsed": "21-15:07:57",
-      "elapsed_seconds": 1868877,
+      "elapsed": "21-15:24:07",
+      "elapsed_seconds": 1869847,
       "alert": false
     }
     ,
     {
       "name": "WF_OSS_OLO2OLO_CDC",
-      "status": "RUNNING",
-      "pid": 14341,
-      "elapsed": "21-15:42:39",
-      "elapsed_seconds": 1870959,
-      "alert": false
+      "status": "RUNNING_RECENT",
+      "pid": 11846,
+      "elapsed": "00:02",
+      "elapsed_seconds": 2,
+      "alert": true
     }
     ,
     {
       "name": "WF_OSS_TRANSFORMATION_CDC",
       "status": "RUNNING",
       "pid": 6868,
-      "elapsed": "21-15:47:44",
-      "elapsed_seconds": 1871264,
+      "elapsed": "21-16:03:54",
+      "elapsed_seconds": 1872234,
       "alert": false
     }
     ,
@@ -90,8 +90,8 @@
       "name": "WF_OSS_TRANSFORMATION_CDC_NDS",
       "status": "RUNNING",
       "pid": 6359,
-      "elapsed": "21-15:48:38",
-      "elapsed_seconds": 1871318,
+      "elapsed": "21-16:04:49",
+      "elapsed_seconds": 1872289,
       "alert": false
     }
     ,
@@ -99,8 +99,8 @@
       "name": "WF_OSS_TRANSFORMATION_CDC_OLOGW",
       "status": "RUNNING",
       "pid": 5849,
-      "elapsed": "21-15:49:39",
-      "elapsed_seconds": 1871379,
+      "elapsed": "21-16:05:50",
+      "elapsed_seconds": 1872350,
       "alert": false
     }
   ]
