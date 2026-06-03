@@ -1,0 +1,134 @@
+{
+  "host": "as013pwc",
+  "domain": "as013pwc.intranet.fw",
+  "pair_host": "as014pwc",
+  "informatica_version": "10.2 HOTFIX",
+  "timestamp": "2026-06-03 15:47:45",
+  "ssh_status": "OK",
+  "catalina_status": "UP",
+  "catalina_process_count": 2,
+  "cdc_summary_status": "WARNING",
+  "cdc_running": 3,
+  "cdc_recent": 10,
+  "cdc_stopped": 0,
+  "cdc_total": 13,
+  "recent_threshold_seconds": 7200,
+  "cdc": [
+    {
+      "name": "wf_m_OML_to_OML_STG",
+      "status": "RUNNING_RECENT",
+      "pid": 5350,
+      "elapsed": "00:00",
+      "elapsed_seconds": 0,
+      "alert": true
+    }
+    ,
+    {
+      "name": "wf_m_OML_to_SRL_STG",
+      "status": "RUNNING",
+      "pid": 529,
+      "elapsed": "7-18:43:09",
+      "elapsed_seconds": null,
+      "alert": false
+    }
+    ,
+    {
+      "name": "wf_m_OMLA_to_ODHE_LA_SRC",
+      "status": "RUNNING",
+      "pid": 953,
+      "elapsed": "7-18:43:05",
+      "elapsed_seconds": 672185,
+      "alert": false
+    }
+    ,
+    {
+      "name": "WF_CDC_ORDINE_NETDB",
+      "status": "RUNNING",
+      "pid": 4091,
+      "elapsed": "7-18:42:36",
+      "elapsed_seconds": 672156,
+      "alert": false
+    }
+    ,
+    {
+      "name": "WF_CDC_OTHER_NETDB",
+      "status": "RUNNING_RECENT",
+      "pid": 5350,
+      "elapsed": "00:00",
+      "elapsed_seconds": 0,
+      "alert": true
+    }
+    ,
+    {
+      "name": "WF_CONFRETE_CDC",
+      "status": "RUNNING_RECENT",
+      "pid": 5350,
+      "elapsed": "00:00",
+      "elapsed_seconds": 0,
+      "alert": true
+    }
+    ,
+    {
+      "name": "WF_EDH_BWE_CDC",
+      "status": "RUNNING_RECENT",
+      "pid": 5350,
+      "elapsed": "00:00",
+      "elapsed_seconds": 0,
+      "alert": true
+    }
+    ,
+    {
+      "name": "wf_SP",
+      "status": "RUNNING_RECENT",
+      "pid": 5350,
+      "elapsed": "00:00",
+      "elapsed_seconds": 0,
+      "alert": true
+    }
+    ,
+    {
+      "name": "WF_TTS_CDC",
+      "status": "RUNNING_RECENT",
+      "pid": 5350,
+      "elapsed": "00:00",
+      "elapsed_seconds": 0,
+      "alert": true
+    }
+    ,
+    {
+      "name": "WF_TTS_CDC_DQ",
+      "status": "RUNNING_RECENT",
+      "pid": 5350,
+      "elapsed": "00:00",
+      "elapsed_seconds": 0,
+      "alert": true
+    }
+    ,
+    {
+      "name": "WF_TTSLA_CDC",
+      "status": "RUNNING_RECENT",
+      "pid": 5350,
+      "elapsed": "00:01",
+      "elapsed_seconds": 1,
+      "alert": true
+    }
+    ,
+    {
+      "name": "WF_TTSRECLA_CDC_TMP",
+      "status": "RUNNING_RECENT",
+      "pid": 5350,
+      "elapsed": "00:01",
+      "elapsed_seconds": 1,
+      "alert": true
+    }
+    ,
+    {
+      "name": "WF_MRM_CDC",
+      "status": "RUNNING_RECENT",
+      "pid": 5350,
+      "elapsed": "00:01",
+      "elapsed_seconds": 1,
+      "alert": true
+    }
+  ]
+}
