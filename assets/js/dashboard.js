@@ -382,7 +382,7 @@ async function initHome() {
         <div class="sc-icon ${wsGlobal}">${wsIconMap[wsGlobal]}</div>
         <span class="sc-badge ${wsGlobal}">${wsLabel}</span>
       </div>
-      <div class="sc-title">WebServiceHub Monitoring</div>
+      <div class="sc-title">Catalina & WebServiceHub</div>
       <div class="sc-desc">${wsDesc}</div>
       <div class="sc-stats">
         <div class="sc-stat">Server <strong>${wsOkCount}/${wsServers}</strong></div>
@@ -397,7 +397,7 @@ async function initHome() {
         <div class="sc-icon ${cdcGlobal}">${cdcIconMap[cdcGlobal]}</div>
         <span class="sc-badge ${cdcGlobal}">${cdcLabel}</span>
       </div>
-      <div class="sc-title">CDC Monitoring</div>
+      <div class="sc-title">Catalina & CDC</div>
       <div class="sc-desc">${cdcDesc}</div>
       <div class="sc-stats">
         <div class="sc-stat">Workflow attivi <strong>${cdcRunWf}/${cdcTotalWf}</strong></div>
@@ -412,7 +412,7 @@ async function initHome() {
         <div class="sc-icon ${dbGlobal}">${dbIconMap[dbGlobal]}</div>
         <span class="sc-badge ${dbGlobal}">${dbLabel}</span>
       </div>
-      <div class="sc-title">DB EDH Monitoring</div>
+      <div class="sc-title">EDH Node Status</div>
       <div class="sc-desc">${dbDesc}</div>
       <div class="sc-stats">
         <div class="sc-stat">Nodi attivi <strong>${dbData?.nodes_up ?? "—"}/${dbData?.expected_nodes ?? "—"}</strong></div>
