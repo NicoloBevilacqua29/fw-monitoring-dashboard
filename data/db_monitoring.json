@@ -1,9 +1,1 @@
-{
-  "service": "EDH_PRO",
-  "check_time": "2026-06-05 14:41:18",
-  "expected_nodes": 2,
-  "nodes_up": 0,
-  "cluster_status": "KO",
-  "message": "sqlplus non funzionante o DB non raggiungibile: entrambi i nodi considerati KO",
-  "nodes": []
-}
+{ "service": "EDH_PRO", "check_time": "2026-06-05 14:42:14", "expected_nodes": 2, "nodes_up": 2, "cluster_status": "OK", "restarted_last_24h": "NO", "nodes": [{"host":"db003edh.intranet.fw","instance":"EDHPRO1","status":"UP","startup_time":"2026-01-28 00:30:57","uptime_days":128,"uptime_hours":14,"uptime_minutes":11},{"host":"db004edh.intranet.fw","instance":"EDHPRO2","status":"UP","startup_time":"2026-01-28 00:30:53","uptime_days":128,"uptime_hours":14,"uptime_minutes":11}] }
