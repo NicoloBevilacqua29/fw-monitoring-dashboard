@@ -522,22 +522,12 @@ const WS_GROUPS = {
   ]
 };
 
-const CDC_GROUPS = {
-  "Informatica 9.5": [
-    "as001pwc",
-    "as002pwc"
-  ],
-
-  "Informatica 9.6": [
-    "as003pwc",
-    "as004pwc"
-  ],
-
-  "Informatica 10.2 HOTFIX": [
-    "as013pwc",
-    "as014pwc"
-  ]
-};
+// Nomi dei file JSON CDC prodotti dalla sh (uno per cluster)
+const CDC_FILES = [
+  "infa_cdc_cluster_CDC95",
+  "infa_cdc_cluster_CDC96",
+  "infa_cdc_cluster_CDC102"
+];
 
 function svcClass(status) {
 
@@ -589,12 +579,8 @@ function wsStatus(server) {
   return "DOWN";
 }
 
-function cdcStatus(server) {
-
-  return (
-    server.cdc_summary_status ||
-    "DOWN"
-  );
+function cdcStatus(cluster) {
+  return cluster.cluster_status || "DOWN";
 }
 
 function createSection(title,count) {
@@ -775,7 +761,7 @@ function renderCDC(server) {
       <div class="card-right">
 
         <div class="ports-pill">
-          ${server.cdc_running}/${server.cdc_total} CDC
+          ${cluster.cdc_running}/${cluster.cdc_total} CDC
         </div>
 
         <div class="chevron">⌄</div>
@@ -843,11 +829,7 @@ async function init() {
     "as091pwc","as092pwc","as093pwc","as094pwc"
   ];
 
-  const cdcFiles = [
-    "as001pwc","as002pwc",
-    "as003pwc","as004pwc",
-    "as013pwc","as014pwc"
-  ];
+  // CDC: un JSON per cluster (non più per host)
 
   const wsData = [];
   const cdcData = [];
@@ -862,13 +844,8 @@ async function init() {
     if (d) wsData.push(d);
   }
 
-  for (const host of cdcFiles) {
-
-    const d =
-      await loadJSON(
-        `data/infa_cdc_status_${host}.json`
-      );
-
+  for (const file of CDC_FILES) {
+    const d = await loadJSON(`data/${file}.json`);
     if (d) cdcData.push(d);
   }
 
@@ -884,9 +861,7 @@ async function init() {
 
   cdcData.forEach(x => {
     if (cdcStatus(x) !== "UP") {
-      alerts.push(
-        `${x.host} CDC`
-      );
+      alerts.push(`${x.cluster} CDC — ${x.cdc_stopped} workflow KO`);
     }
   });
 
@@ -971,44 +946,19 @@ async function init() {
       "cdc-dashboard"
     );
 
-  Object.entries(CDC_GROUPS)
-    .forEach(([name,hosts]) => {
+  // Un'unica sezione CDC con tutti i cluster
+  const cdcSection = createSection("Informatica CDC Clusters", `${cdcData.length} cluster`);
+  const cdcGrid = cdcSection.querySelector(".grid");
 
-      const servers =
-        cdcData.filter(
-          x => hosts.includes(x.host)
-        );
+  cdcData.forEach(cluster => {
+    const wrap = document.createElement("div");
+    wrap.innerHTML = renderCDC(cluster);
+    const card = wrap.firstElementChild;
+    card.onclick = () => card.classList.toggle("open");
+    cdcGrid.appendChild(card);
+  });
 
-      const section =
-        createSection(
-          name,
-          `${servers.length} server`
-        );
-
-      const grid =
-        section.querySelector(".grid");
-
-      servers.forEach(s => {
-
-        const wrap =
-          document.createElement("div");
-
-        wrap.innerHTML =
-          renderCDC(s);
-
-        const card =
-          wrap.firstElementChild;
-
-        card.onclick =
-          () => card.classList.toggle("open");
-
-        grid.appendChild(card);
-
-      });
-
-      cdcContainer.appendChild(section);
-
-    });
+  cdcContainer.appendChild(cdcSection);
 
   document
     .getElementById("footer")
