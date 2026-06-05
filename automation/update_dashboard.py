@@ -16,8 +16,8 @@ GIT_EXE = r"C:\Users\nicolo.bevilacqua\AppData\Local\Programs\Git\cmd\git.exe"
 
 MAIL_SUBJECTS = [
     "[External] Informatica WebServiceHub status - as008pwc",
-    # La mail CDC contiene allegati infa_cdc_cluster_CDC*.json (uno per cluster)
     "[External] Informatica CDC status - as008pwc",
+    "[External] DB EDH Monitoring JSON",
 ]
 
 
