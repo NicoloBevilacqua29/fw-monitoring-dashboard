@@ -703,106 +703,56 @@ function renderWS(server) {
   `;
 }
 
-function renderCDC(server) {
+function renderCDC(cluster) {
+  const status = cluster.cluster_status || "DOWN";
 
-  const status =
-    cdcStatus(server);
+  // Chip Catalina per ogni nodo
+  const catChips = Object.entries(cluster.catalina || {}).map(([host, info]) => `
+    <div class="meta-chip">
+      Catalina <b style="margin-left:4px">${host}</b>
+      <span class="svc-badge ${info.status === 'UP' ? 'svc-up' : 'svc-down'}" style="margin-left:6px">${info.status}</span>
+    </div>`).join('');
 
-  const rows =
-    (server.cdc || [])
-    .map(c => `
+  // Righe CDC
+  const rows = (cluster.cdc || []).map(c => {
+    const hostLabel = !c.running_host ? '—'
+      : c.running_host === 'BOTH' ? '<span style="color:var(--yellow)">⚠ BOTH</span>'
+      : c.running_host;
+    return `
       <div class="cdc-row">
+        <div style="font-family:monospace;font-size:12px;word-break:break-all">${c.name}</div>
+        <span class="svc-badge ${c.status === 'RUNNING' ? 'svc-up' : 'svc-down'}">${c.status}</span>
+        <div style="font-size:12px;color:var(--muted)">${hostLabel}</div>
+        <div style="font-size:12px;color:var(--muted)">PID&nbsp;${c.pid ?? '—'}</div>
+      </div>`;
+  }).join('');
 
-        <div>
-          ${c.name}
-        </div>
-
-        <div class="svc-badge ${svcClass(c.status)}">
-          ${c.status}
-        </div>
-
-        <div>
-          PID ${c.pid ?? '-'}
-        </div>
-
-        <div>
-          ${c.elapsed ?? '-'}
-        </div>
-
-      </div>
-    `)
-    .join("");
+  const ringIcon = status === 'UP' ? '↑' : status === 'WARNING' ? '!' : '↓';
+  const ringCls  = status === 'UP' ? 'ring-up' : status === 'WARNING' ? 'ring-warn' : 'ring-down';
 
   return `
-  <div class="card ${status !== 'UP' ? 'is-down':''}">
+  <div class="card ${status !== 'UP' ? 'is-down' : ''}">
     <div class="card-collapsed">
-
       <div class="card-left">
-
-        <div class="status-ring ${ringClass(status)}">
-          ${status === 'UP' ? '↑' :
-            status === 'WARNING' ? '!' : '↓'}
-        </div>
-
+        <div class="status-ring ${ringCls}">${ringIcon}</div>
         <div>
-
-          <div class="server-name">
-            ${server.host}
-          </div>
-
-          <div class="server-domain">
-            ${server.informatica_version}
-          </div>
-
+          <div class="server-name">${cluster.cluster}</div>
+          <div class="server-domain">${cluster.primary} &nbsp;/&nbsp; ${cluster.secondary}</div>
         </div>
-
       </div>
-
       <div class="card-right">
-
-        <div class="ports-pill">
-          ${cluster.cdc_running}/${cluster.cdc_total} CDC
-        </div>
-
+        <div class="ports-pill">${cluster.cdc_running}/${cluster.cdc_total} CDC</div>
         <div class="chevron">⌄</div>
-
       </div>
-
     </div>
-
     <div class="card-details">
-
-      <div class="meta-row">
-
-        <div class="meta-chip">
-          Catalina
-          <span>
-            ${server.catalina_status}
-          </span>
-        </div>
-
-        <div class="meta-chip">
-          Pair
-          <span>
-            ${server.pair_host}
-          </span>
-        </div>
-
-      </div>
-
-      <div class="services-list">
-        ${rows}
-      </div>
-
-      <div class="timestamp">
-        ${server.timestamp}
-      </div>
-
+      <div class="meta-row">${catChips}</div>
+      <div class="services-list">${rows}</div>
+      <div class="timestamp">${cluster.timestamp}</div>
     </div>
-
-  </div>
-  `;
+  </div>`;
 }
+
 
 async function loadJSON(path) {
 
@@ -946,19 +896,31 @@ async function init() {
       "cdc-dashboard"
     );
 
-  // Un'unica sezione CDC con tutti i cluster
-  const cdcSection = createSection("Informatica CDC Clusters", `${cdcData.length} cluster`);
-  const cdcGrid = cdcSection.querySelector(".grid");
+  // Mappa versione Informatica -> label sezione
+  const VERSION_LABELS = {
+    "CDC95":  "Informatica 9.5",
+    "CDC96":  "Informatica 9.6",
+    "CDC102": "Informatica 10.2 HotFix"
+  };
 
-  cdcData.forEach(cluster => {
+  // Una sezione per cluster (nell'ordine di CDC_FILES)
+  CDC_FILES.forEach(fileName => {
+    const clusterName = fileName.replace("infa_cdc_cluster_", ""); // es. "CDC95"
+    const cluster = cdcData.find(d => d.cluster === clusterName);
+    if (!cluster) return;
+
+    const label = VERSION_LABELS[clusterName] || clusterName;
+    const section = createSection(label, `${cluster.cdc_running}/${cluster.cdc_total} CDC running`);
+    const grid = section.querySelector(".grid");
+
     const wrap = document.createElement("div");
     wrap.innerHTML = renderCDC(cluster);
     const card = wrap.firstElementChild;
     card.onclick = () => card.classList.toggle("open");
-    cdcGrid.appendChild(card);
-  });
+    grid.appendChild(card);
 
-  cdcContainer.appendChild(cdcSection);
+    cdcContainer.appendChild(section);
+  });
 
   document
     .getElementById("footer")
