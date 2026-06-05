@@ -157,7 +157,7 @@ def download_json_from_outlook():
                     tmp_path.unlink(missing_ok=True)
                     continue
 
-                tmp_path.rename(save_path)
+                tmp_path.replace(save_path)
                 print(f"Salvato e normalizzato: {filename}")
 
                 saved += 1
