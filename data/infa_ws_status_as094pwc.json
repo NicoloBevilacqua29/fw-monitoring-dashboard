@@ -1,7 +1,7 @@
 {
   "host": "as094pwc",
   "domain": "as094pwc.intranet.fw",
-  "timestamp": "2026-06-03 16:03:25",
+  "timestamp": "2026-06-05 10:28:06",
   "ssh_status": "OK",
   "informatica_process_status": "UP",
   "catalina_process_count": 4,
