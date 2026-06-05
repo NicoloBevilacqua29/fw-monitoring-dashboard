@@ -330,14 +330,14 @@ async function init() {
 
     const d =
       await loadJSON(
-        `data/infa_ws_status_${host}.json`
+        `/fw-monitoring-dashboard/data/infa_ws_status_${host}.json`
       );
 
     if (d) wsData.push(d);
   }
 
   for (const file of CDC_FILES) {
-    const d = await loadJSON(`data/${file}.json`);
+    const d = await loadJSON(`/fw-monitoring-dashboard/data/${file}.json`);
     if (d) cdcData.push(d);
   }
 
