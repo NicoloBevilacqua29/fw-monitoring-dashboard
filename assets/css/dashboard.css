@@ -93,8 +93,48 @@ main { padding: 40px 40px 60px; }
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
+  align-items: stretch;
+}
+
+.summary-card-wide {
+  grid-column: auto;
+}
+
+.edh-node-row {
+  display: grid;
+  grid-template-columns: 36px minmax(220px, 1fr) 80px 190px 120px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.edh-node-row.is-node-down {
+  border-color: rgba(248,113,113,.35);
+  background: rgba(248,113,113,.04);
+}
+
+.edh-node-row.is-node-warn {
+  border-color: rgba(251,191,36,.35);
+  background: rgba(251,191,36,.04);
+}
+
+.edh-label {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.edh-value {
+  font-size: 12px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .summary-skeleton {
@@ -262,10 +302,16 @@ main { padding: 40px 40px 60px; }
 }
 .card:hover { border-color: var(--border-hover); transform: translateY(-1px); }
 .card.is-down { animation: blink-border 1.2s ease-in-out infinite; }
+.card.is-warn { animation: blink-warn-border 1.4s ease-in-out infinite; }
 
 @keyframes blink-border {
   0%,100% { border-color: rgba(248,113,113,.15); box-shadow: none; }
   50% { border-color: rgba(248,113,113,.7); box-shadow: 0 0 18px rgba(248,113,113,.2); }
+}
+
+@keyframes blink-warn-border {
+  0%,100% { border-color: rgba(251,191,36,.18); box-shadow: none; }
+  50% { border-color: rgba(251,191,36,.65); box-shadow: 0 0 18px rgba(251,191,36,.14); }
 }
 
 .card-collapsed {
@@ -356,6 +402,7 @@ main { padding: 40px 40px 60px; }
 
 @media (max-width:600px) {
   header, main, .footer, #alert-banner { padding-left: 20px; padding-right: 20px; }
-  .service-row, .cdc-row { grid-template-columns: 1fr; gap: 6px; }
+  .service-row, .cdc-row, .edh-node-row { grid-template-columns: 1fr; gap: 6px; }
   .summary-grid { grid-template-columns: 1fr; }
+  .summary-card-wide { grid-column: auto; }
 }

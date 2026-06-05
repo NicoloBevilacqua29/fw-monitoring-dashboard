@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DB EDH Monitoring — FW</title>
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="back-btn" href="index.html">← Dashboard</a>
+    <div class="header-dot" id="header-dot"></div>
+    <div>
+      <h1>DB EDH Monitoring</h1>
+      <p>Stato cluster database EDH — nodi, restart e disponibilità</p>
+    </div>
+    <div class="header-time" id="header-time"></div>
+  </div>
+</header>
+
+<div id="alert-banner">
+  <div class="alert-icon">!</div>
+  <div class="alert-body">
+    <div class="alert-title">Attenzione — cluster DB EDH in anomalia</div>
+    <ul class="alert-list" id="alert-list"></ul>
+  </div>
+  <button class="alert-dismiss" id="alert-dismiss">Nascondi</button>
+</div>
+
+<main>
+  <div class="monitor-block">
+    <div id="db-dashboard"></div>
+  </div>
+</main>
+
+<div class="footer" id="footer"></div>
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>

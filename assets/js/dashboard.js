@@ -41,6 +41,40 @@ function wsStatus(srv) {
 
 function cdcStatus(c) { return c.cluster_status || "DOWN"; }
 
+function isNodeRecentlyStarted(node) {
+  if (!node || node.status !== "UP") return false;
+
+  const days = Number(node.uptime_days);
+  const hours = Number(node.uptime_hours);
+  const minutes = Number(node.uptime_minutes);
+
+  if ([days, hours, minutes].every(Number.isFinite)) {
+    return (days * 24 * 60 + hours * 60 + minutes) < 24 * 60;
+  }
+
+  return false;
+}
+
+function hasRecentDBRestart(db) {
+  if (!db) return false;
+  if (String(db.restarted_last_24h || "").toUpperCase() === "YES") return true;
+  return (db.nodes || []).some(isNodeRecentlyStarted);
+}
+
+function dbStatus(db) {
+  if (!db) return "DOWN";
+
+  const nodesUp = Number(db.nodes_up);
+  const expectedNodes = Number(db.expected_nodes);
+
+  if (db.cluster_status === "OK" && nodesUp === expectedNodes) {
+    return hasRecentDBRestart(db) ? "WARNING" : "UP";
+  }
+
+  if (nodesUp > 0) return "WARNING";
+  return "DOWN";
+}
+
 async function loadJSON(path) {
   try {
     const r = await fetch(new URL(path, BASE));
@@ -157,6 +191,105 @@ function renderCDC(cluster) {
   </div>`;
 }
 
+
+// ── Render DB EDH ─────────────────────────────────────────────────────────────
+
+function formatUptime(node) {
+  if (!node || node.status !== "UP") return "—";
+  const d = node.uptime_days ?? 0;
+  const h = node.uptime_hours ?? 0;
+  const m = node.uptime_minutes ?? 0;
+  return `${d}g ${h}h ${m}m`;
+}
+
+function nodeRingClass(status, recent) {
+  if (recent) return "ring-warn";
+  return status === "UP" ? "ring-up" : "ring-down";
+}
+
+function nodeVisualStatus(node) {
+  if (!node || node.status !== "UP") return "DOWN";
+  return isNodeRecentlyStarted(node) ? "RUNNING_RECENT" : "UP";
+}
+
+function renderDB(db) {
+  const status = dbStatus(db);
+  const icon = status === "UP" ? "↑" : status === "WARNING" ? "!" : "↓";
+  const cardClass = status === "UP" ? "" : status === "WARNING" ? "is-warn" : "is-down";
+
+  // Nuovo formato JSON: nodes[]
+  // Compatibilità: se esiste ancora il vecchio hosts[], lo trasformo in nodes[] base.
+  const nodes = (db.nodes && Array.isArray(db.nodes) && db.nodes.length)
+    ? db.nodes
+    : (db.hosts || []).map(host => ({
+        host,
+        instance: "",
+        status: "UP",
+        startup_time: null,
+        uptime_days: null,
+        uptime_hours: null,
+        uptime_minutes: null
+      }));
+
+  const nodeRows = nodes.map(node => {
+    const recent = isNodeRecentlyStarted(node);
+    const visualStatus = nodeVisualStatus(node);
+    const isDown = visualStatus === "DOWN";
+    const rowClass = isDown ? "is-node-down" : recent ? "is-node-warn" : "";
+    const nodeIcon = isDown ? "↓" : recent ? "!" : "↑";
+    const badgeClass = isDown ? "svc-down" : recent ? "svc-warn" : "svc-up";
+    const badgeText = recent ? "RECENTE" : visualStatus;
+
+    return `
+      <div class="edh-node-row ${rowClass}">
+        <div class="status-ring ${nodeRingClass(node.status, recent)}">${nodeIcon}</div>
+
+        <div>
+          <div class="server-name">${node.host || "Host non disponibile"}</div>
+          <div class="server-domain">${node.instance || "Istanza non disponibile"}</div>
+        </div>
+
+        <span class="svc-badge ${badgeClass}">${badgeText}</span>
+
+        <div>
+          <div class="edh-label">Startup</div>
+          <div class="edh-value">${node.startup_time || "—"}</div>
+        </div>
+
+        <div>
+          <div class="edh-label">Uptime</div>
+          <div class="edh-value">${formatUptime(node)}</div>
+        </div>
+      </div>`;
+  }).join("");
+
+  return `
+  <div class="card ${cardClass}">
+    <div class="card-collapsed">
+      <div class="card-left">
+        <div class="status-ring ${ringClass(status)}">${icon}</div>
+        <div>
+          <div class="server-name">${db.service || "DB EDH"}</div>
+          <div class="server-domain">Cluster EDH database monitoring</div>
+        </div>
+      </div>
+      <div class="card-right">
+        <div class="ports-pill">${db.nodes_up ?? "—"}/${db.expected_nodes ?? "—"} nodi</div>
+        <div class="chevron">⌄</div>
+      </div>
+    </div>
+    <div class="card-details">
+      <div class="meta-row">
+        <div class="meta-chip">Cluster <span>${db.cluster_status || "N/D"}</span></div>
+        <div class="meta-chip">Restart 24h <span>${db.restarted_last_24h || "N/D"}</span></div>
+        <div class="meta-chip">Check <span>${db.check_time || "N/D"}</span></div>
+      </div>
+      <div class="services-list">${nodeRows}</div>
+      <div class="timestamp">${db.check_time || "Timestamp non disponibile"}</div>
+    </div>
+  </div>`;
+}
+
 // ── Clock ─────────────────────────────────────────────────────────────────────
 
 function startClock() {
@@ -190,9 +323,10 @@ async function initHome() {
   const wsFiles = ["as008pwc","as009pwc","as010pwc","as011pwc",
                    "as091pwc","as092pwc","as093pwc","as094pwc"];
 
-  const [wsData, cdcData] = await Promise.all([
+  const [wsData, cdcData, dbData] = await Promise.all([
     Promise.all(wsFiles.map(h => loadJSON(`data/infa_ws_status_${h}.json`))).then(r => r.filter(Boolean)),
-    Promise.all(CDC_FILES.map(f => loadJSON(`data/${f}.json`))).then(r => r.filter(Boolean))
+    Promise.all(CDC_FILES.map(f => loadJSON(`data/${f}.json`))).then(r => r.filter(Boolean)),
+    loadJSON("data/db_monitoring.json")
   ]);
 
   // Calcola stato globale WS
@@ -211,8 +345,13 @@ async function initHome() {
   const cdcRunWf   = cdcData.reduce((a, c) => a + c.cdc_running, 0);
   const cdcStopWf  = cdcData.reduce((a, c) => a + c.cdc_stopped, 0);
 
+  // Calcola stato globale DB EDH
+  const dbRawStatus = dbStatus(dbData);
+  const dbGlobal = dbRawStatus === "UP" ? "up" : dbRawStatus === "WARNING" ? "warn" : "down";
+
   const wsLabel  = wsGlobal === "up"  ? "Operativo" : "Anomalia rilevata";
   const cdcLabel = cdcGlobal === "up" ? "Operativo" : cdcGlobal === "warn" ? "Attenzione" : "Anomalia rilevata";
+  const dbLabel  = dbGlobal === "up"  ? "Operativo" : dbGlobal === "warn" ? "Attenzione" : "Anomalia rilevata";
 
   const wsDesc  = wsGlobal === "up"
     ? `Tutti i ${wsServers} server Informatica WebServiceHub sono raggiungibili e rispondono correttamente su tutte le porte monitorate.`
@@ -222,8 +361,19 @@ async function initHome() {
     ? `Tutti i ${cdcTotalWf} workflow Change Data Capture sono in esecuzione sui cluster Informatica 9.5, 9.6 e 10.2.`
     : `${cdcStopWf} workflow su ${cdcTotalWf} risultano fermi. Verificare lo stato dei cluster CDC.`;
 
+  const recentNodes = (dbData?.nodes || []).filter(isNodeRecentlyStarted);
+
+  const dbDesc = !dbData
+    ? "Dati DB EDH non disponibili. Verificare la presenza del file data/db_monitoring.json."
+    : dbGlobal === "up"
+      ? `Cluster ${dbData.service} operativo: ${dbData.nodes_up}/${dbData.expected_nodes} nodi attivi. Nessun riavvio rilevato nelle ultime 24h.`
+      : recentNodes.length > 0 && Number(dbData.nodes_up) === Number(dbData.expected_nodes)
+        ? `Cluster ${dbData.service} operativo ma ${recentNodes.length} nodo/i risultano avviati da meno di 24h.`
+        : `Cluster ${dbData.service || "DB EDH"} in anomalia: ${dbData.nodes_up ?? "—"}/${dbData.expected_nodes ?? "—"} nodi attivi. Verificare lo stato database.`;
+
   const wsIconMap  = { up: "✦", down: "✕" };
   const cdcIconMap = { up: "✦", down: "✕", warn: "!" };
+  const dbIconMap  = { up: "✦", down: "✕", warn: "!" };
 
   const grid = document.getElementById("summary-grid");
   grid.innerHTML = `
@@ -255,11 +405,26 @@ async function initHome() {
         ${cdcStopWf > 0 ? `<div class="sc-stat" style="color:var(--red)">KO <strong>${cdcStopWf}</strong></div>` : ""}
       </div>
       <div class="sc-cta">Visualizza dettagli <span class="sc-arrow">→</span></div>
+    </a>
+
+    <a class="summary-card status-${dbGlobal}" href="db.html">
+      <div class="sc-top">
+        <div class="sc-icon ${dbGlobal}">${dbIconMap[dbGlobal]}</div>
+        <span class="sc-badge ${dbGlobal}">${dbLabel}</span>
+      </div>
+      <div class="sc-title">DB EDH Monitoring</div>
+      <div class="sc-desc">${dbDesc}</div>
+      <div class="sc-stats">
+        <div class="sc-stat">Nodi attivi <strong>${dbData?.nodes_up ?? "—"}/${dbData?.expected_nodes ?? "—"}</strong></div>
+        <div class="sc-stat">Cluster <strong>${dbData?.cluster_status ?? "N/D"}</strong></div>
+        <div class="sc-stat">Restart 24h <strong>${dbData?.restarted_last_24h ?? "N/D"}</strong></div>
+      </div>
+      <div class="sc-cta">Visualizza dettagli <span class="sc-arrow">→</span></div>
     </a>`;
 
   // Dot header
   const dot = document.getElementById("header-dot");
-  if (wsGlobal !== "up" || cdcGlobal !== "up") dot && dot.classList.add("has-down");
+  if (wsGlobal !== "up" || cdcGlobal !== "up" || dbGlobal !== "up") dot && dot.classList.add("has-down");
 
   document.getElementById("footer").textContent =
     "Dashboard aggiornata automaticamente da Outlook + GitHub";
@@ -313,6 +478,59 @@ async function initCDC() {
     "Dashboard aggiornata automaticamente da Outlook + GitHub";
 }
 
+
+// ── Page: DB EDH detail ───────────────────────────────────────────────────────
+
+async function initDB() {
+  const dbData = await loadJSON("data/db_monitoring.json");
+  const status = dbStatus(dbData);
+
+  const alerts = [];
+  if (!dbData) {
+    alerts.push("DB EDH — file data/db_monitoring.json non disponibile");
+  } else {
+    const downNodes = (dbData.nodes || []).filter(node => node.status !== "UP");
+    const recentNodes = (dbData.nodes || []).filter(isNodeRecentlyStarted);
+
+    if (status !== "UP") {
+      alerts.push(`${dbData.service || "DB EDH"} — ${dbData.nodes_up ?? "—"}/${dbData.expected_nodes ?? "—"} nodi attivi`);
+    }
+
+    downNodes.forEach(node => alerts.push(`${node.host || "Nodo EDH"} — DOWN`));
+    recentNodes.forEach(node => alerts.push(`${node.host || "Nodo EDH"} — running da poco: uptime ${formatUptime(node)}`));
+  }
+  setupAlerts(alerts);
+
+  const container = document.getElementById("db-dashboard");
+  if (!container) return;
+
+  if (!dbData) {
+    const section = createSection("EDH", "dati non disponibili");
+    section.querySelector(".grid").innerHTML = `
+      <div class="card is-down">
+        <div class="card-collapsed">
+          <div class="card-left">
+            <div class="status-ring ring-down">↓</div>
+            <div>
+              <div class="server-name">DB EDH</div>
+              <div class="server-domain">File data/db_monitoring.json non trovato</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    container.appendChild(section);
+    return;
+  }
+
+  const section = createSection("EDH", `${dbData.nodes_up}/${dbData.expected_nodes} nodi attivi`);
+  const grid = section.querySelector(".grid");
+  addCard(grid, renderDB(dbData));
+  container.appendChild(section);
+
+  document.getElementById("footer").textContent =
+    "Dashboard aggiornata automaticamente da Outlook + GitHub";
+}
+
 // ── Router ────────────────────────────────────────────────────────────────────
 
 startClock();
@@ -320,4 +538,5 @@ startClock();
 const page = location.pathname.split("/").pop() || "index.html";
 if      (page === "ws.html")  initWS();
 else if (page === "cdc.html") initCDC();
+else if (page === "db.html")  initDB();
 else                          initHome();
