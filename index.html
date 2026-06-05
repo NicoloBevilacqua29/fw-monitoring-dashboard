@@ -4,61 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FW Monitoring Dashboard</title>
-
   <link rel="stylesheet" href="assets/css/dashboard.css" />
 </head>
 <body>
 
-<div id="alert-banner">
-  <div class="alert-icon">!</div>
-
-  <div class="alert-body">
-    <div class="alert-title">
-      Attenzione — sistemi in stato KO
-    </div>
-
-    <ul class="alert-list" id="alert-list"></ul>
-  </div>
-
-  <button class="alert-dismiss" id="alert-dismiss">
-    Nascondi
-  </button>
-</div>
-
 <header>
   <div class="header-inner">
     <div class="header-dot" id="header-dot"></div>
-
     <div>
       <h1>FW Monitoring</h1>
-      <p>WebServiceHub & CDC Monitoring</p>
+      <p>Fastweb Infrastructure Monitoring — Informatica Platform</p>
     </div>
+    <div class="header-time" id="header-time"></div>
   </div>
 </header>
 
 <main>
-
-  <div class="monitor-block">
-    <div class="monitor-title">
-      WebServiceHub Monitoring
-    </div>
-
-    <div id="ws-dashboard"></div>
+  <div class="summary-grid" id="summary-grid">
+    <div class="summary-skeleton"></div>
+    <div class="summary-skeleton"></div>
   </div>
-
-  <div class="monitor-block">
-    <div class="monitor-title">
-      CDC Monitoring
-    </div>
-
-    <div id="cdc-dashboard"></div>
-  </div>
-
 </main>
 
-<div id="footer" class="footer"></div>
+<div class="footer" id="footer"></div>
 
 <script src="assets/js/dashboard.js"></script>
-
 </body>
 </html>
