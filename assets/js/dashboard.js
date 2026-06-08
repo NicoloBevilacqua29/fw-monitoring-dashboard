@@ -20,7 +20,30 @@ const BASE = (() => {
   return location.origin + p;
 })();
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+function icon(name) {
+  return `<i data-lucide="${name}" aria-hidden="true"></i>`;
+}
+
+// ── Helpers ─────────────────────────
+
+function statusIcon(status) {
+  const normalized = String(status || "").toUpperCase();
+
+  if (normalized === "UP" || normalized === "RUNNING") {
+    return icon("circle-check");
+  }
+
+  if (
+    normalized === "WARNING" ||
+    normalized === "STARTING" ||
+    normalized === "RUNNING_RECENT"
+  ) {
+    return icon("triangle-alert");
+  }
+
+  return icon("circle-x");
+}
+
 
 function svcClass(s) {
   if (s === "UP" || s === "RUNNING") return "svc-up";
@@ -121,7 +144,7 @@ function renderWS(srv) {
   <div class="card ${status !== "UP" ? "is-down" : ""}">
     <div class="card-collapsed">
       <div class="card-left">
-        <div class="status-ring ${ringClass(status)}">${status === "UP" ? "↑" : "↓"}</div>
+        <div class="status-ring ${ringClass(status)}">${statusIcon(status)}</div>
         <div>
           <div class="server-name">${srv.host}</div>
           <div class="server-domain">${srv.domain}</div>
@@ -172,7 +195,7 @@ function renderCDC(cluster) {
   <div class="card ${status !== "UP" ? "is-down" : ""}">
     <div class="card-collapsed">
       <div class="card-left">
-        <div class="status-ring ${ringClass(status)}">${icon}</div>
+        <div class="status-ring ${ringClass(status)}">${statusIcon(status)}</div>
         <div>
           <div class="server-name">${cluster.cluster} <small style="font-weight:400;color:var(--muted)">v${cluster.version}</small></div>
           <div class="server-domain">${cluster.primary} / ${cluster.secondary}</div>
@@ -242,7 +265,7 @@ function renderDB(db) {
 
     return `
       <div class="edh-node-row ${rowClass}">
-        <div class="status-ring ${nodeRingClass(node.status, recent)}">${nodeIcon}</div>
+        <div class="status-ring ${nodeRingClass(node.status, recent)}">${statusIcon(visualStatus)}</div>
 
         <div>
           <div class="server-name">${node.host || "Host non disponibile"}</div>
@@ -259,7 +282,7 @@ function renderDB(db) {
         <div>
           <div class="edh-label">Uptime</div>
           <div class="edh-value">${formatUptime(node)}</div>
-        </div>
+        </div><
       </div>`;
   }).join("");
 
@@ -267,7 +290,7 @@ function renderDB(db) {
   <div class="card ${cardClass}">
     <div class="card-collapsed">
       <div class="card-left">
-        <div class="status-ring ${ringClass(status)}">${icon}</div>
+        <div class="status-ring ${ringClass(status)}">${statusIcon(status)}</div>
         <div>
           <div class="server-name">${db.service || "DB EDH"}</div>
           <div class="server-domain">Cluster EDH database monitoring</div>
@@ -324,7 +347,7 @@ function renderAgent(agent) {
   <div class="card ${cardClass}">
     <div class="card-collapsed">
       <div class="card-left">
-        <div class="status-ring ${ringClass(status)}">${icon}</div>
+        <div class="status-ring ${ringClass(status)}">${statusIcon(status)}</div>
         <div>
           <div class="server-name">${agent.name || agent.agentHost || "Agent"}</div>
           <div class="server-domain">${agent.agentHost || "—"}</div>
@@ -448,16 +471,18 @@ async function initHome() {
         ? `Cluster ${dbData.service} operativo ma ${recentNodes.length} nodo/i risultano avviati da meno di 24h.`
         : `Cluster ${dbData.service || "DB EDH"} in anomalia: ${dbData.nodes_up ?? "—"}/${dbData.expected_nodes ?? "—"} nodi attivi. Verificare lo stato database.`;
 
-  const wsIconMap  = { up: "✦", down: "✕" };
-  const cdcIconMap = { up: "✦", down: "✕", warn: "!" };
-  const dbIconMap  = { up: "✦", down: "✕", warn: "!" };
-  const agentIconMap = { up: "✦", down: "✕", warn: "!" };
+  const dashboardIconMap = {
+  ws: icon("server"),
+  cdc: icon("git-branch"),
+  db: icon("database"),
+  agent: icon("cloud-cog")
+};
 
   const grid = document.getElementById("summary-grid");
   grid.innerHTML = `
-    <a class="summary-card status-${wsGlobal}" href="ws.html">
+    <a class="summary-card status-${wsGlobal}" data-dashboard="ws" href="ws.html">
       <div class="sc-top">
-        <div class="sc-icon ${wsGlobal}">${wsIconMap[wsGlobal]}</div>
+        <div class="sc-icon ${wsGlobal}">${dashboardIconMap.ws}</div>
         <span class="sc-badge ${wsGlobal}">${wsLabel}</span>
       </div>
       <div class="sc-title">Catalina & WebServiceHub</div>
@@ -470,9 +495,9 @@ async function initHome() {
       <div class="sc-cta">Visualizza dettagli <span class="sc-arrow">→</span></div>
     </a>
 
-    <a class="summary-card status-${cdcGlobal}" href="cdc.html">
+    <a class="summary-card status-${cdcGlobal}" data-dashboard="cdc" href="cdc.html">
       <div class="sc-top">
-        <div class="sc-icon ${cdcGlobal}">${cdcIconMap[cdcGlobal]}</div>
+        <div class="sc-icon ${cdcGlobal}">${dashboardIconMap.cdc}</div>
         <span class="sc-badge ${cdcGlobal}">${cdcLabel}</span>
       </div>
       <div class="sc-title">Catalina & CDC</div>
@@ -485,9 +510,9 @@ async function initHome() {
       <div class="sc-cta">Visualizza dettagli <span class="sc-arrow">→</span></div>
     </a>
 
-    <a class="summary-card status-${dbGlobal}" href="db.html">
+    <a class="summary-card status-${dbGlobal}" data-dashboard="db" href="db.html">
       <div class="sc-top">
-        <div class="sc-icon ${dbGlobal}">${dbIconMap[dbGlobal]}</div>
+        <div class="sc-icon ${dbGlobal}">${dashboardIconMap.db}</div>
         <span class="sc-badge ${dbGlobal}">${dbLabel}</span>
       </div>
       <div class="sc-title">EDH Node Status</div>
@@ -500,9 +525,9 @@ async function initHome() {
       <div class="sc-cta">Visualizza dettagli <span class="sc-arrow">→</span></div>
     </a>
 
-    <a class="summary-card status-${agentGlobal}" href="agents.html">
+    <a class="summary-card status-${agentGlobal}" data-dashboard="agent" href="agents.html">
       <div class="sc-top">
-        <div class="sc-icon ${agentGlobal}">${agentIconMap[agentGlobal]}</div>
+        <div class="sc-icon ${agentGlobal}">${dashboardIconMap.agent}</div>
         <span class="sc-badge ${agentGlobal}">${agentLabel}</span>
       </div>
       <div class="sc-title">Informatica Cloud Agent</div>
@@ -514,6 +539,10 @@ async function initHome() {
       </div>
       <div class="sc-cta">Visualizza dettagli <span class="sc-arrow">→</span></div>
     </a>`;
+
+if (window.lucide) {
+  lucide.createIcons();
+}
 
   // Dot header
   const dot = document.getElementById("header-dot");
@@ -544,6 +573,8 @@ async function initWS() {
 
   document.getElementById("footer").textContent =
     "Dashboard aggiornata automaticamente da Outlook + GitHub";
+
+    refreshIcons();
 }
 
 // ── Page: CDC detail ──────────────────────────────────────────────────────────
@@ -569,6 +600,8 @@ async function initCDC() {
 
   document.getElementById("footer").textContent =
     "Dashboard aggiornata automaticamente da Outlook + GitHub";
+
+    refreshIcons();
 }
 
 
@@ -603,7 +636,7 @@ async function initDB() {
       <div class="card is-down">
         <div class="card-collapsed">
           <div class="card-left">
-            <div class="status-ring ring-down">↓</div>
+            <div class="status-ring ring-down">${statusIcon("DOWN")}</div>
             <div>
               <div class="server-name">DB EDH</div>
               <div class="server-domain">File data/db_monitoring.json non trovato</div>
@@ -622,6 +655,8 @@ async function initDB() {
 
   document.getElementById("footer").textContent =
     "Dashboard aggiornata automaticamente da Outlook + GitHub";
+
+    refreshIcons();
 }
 
 
@@ -652,7 +687,7 @@ async function initAgents() {
       <div class="card is-down">
         <div class="card-collapsed">
           <div class="card-left">
-            <div class="status-ring ring-down">↓</div>
+            <div class="status-ring ring-down">${statusIcon("DOWN")}</div>
             <div>
               <div class="server-name">Informatica Cloud Agent</div>
               <div class="server-domain">File data/report_finale.json non trovato</div>
@@ -672,6 +707,8 @@ async function initAgents() {
 
   document.getElementById("footer").textContent =
     "Dashboard aggiornata automaticamente da Outlook + GitHub";
+
+    refreshIcons();
 }
 
 
@@ -777,6 +814,12 @@ function setupCommandConsole() {
 
     runDashboardCommand(command);
   });
+}
+
+function refreshIcons() {
+  if (window.lucide) {
+    lucide.createIcons();
+  }
 }
 
 // ── Router ────────────────────────────────────────────────────────────────────
