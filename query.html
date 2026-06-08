@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Query DB — FW Monitoring</title>
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="back-btn" href="index.html">← Dashboard</a>
+    <div class="header-dot" id="header-dot"></div>
+    <div>
+      <h1>Query DB</h1>
+      <p>Console dedicata per interrogare il backend locale e visualizzare risultati tabellari</p>
+    </div>
+    <div class="header-time" id="header-time"></div>
+  </div>
+</header>
+
+<main class="query-page-main">
+  <section class="command-panel" id="command-panel">
+    <div class="command-panel-head">
+      <div>
+        <div class="command-kicker">Query assistita</div>
+        <h2>Chiedi alla dashboard</h2>
+        <p>Scrivi un comando autorizzato, ad esempio <button class="command-chip" type="button" data-command="stato edh">stato edh</button></p>
+      </div>
+      <div class="command-status" id="command-status">Backend locale</div>
+    </div>
+
+    <form class="command-form" id="command-form">
+      <input
+        id="command-input"
+        type="text"
+        autocomplete="off"
+        placeholder="Esempio: stato edh"
+      />
+      <button type="submit">Esegui</button>
+    </form>
+
+    <div class="command-result" id="command-result" hidden></div>
+  </section>
+</main>
+
+<div class="footer" id="footer"></div>
+
+<script src="assets/js/dashboard.js"></script>
+</body>
+</html>
