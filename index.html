@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FW Monitoring Dashboard</title>
   <link rel="stylesheet" href="assets/css/dashboard.css" />
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
@@ -16,35 +16,13 @@
       <h1>FW Monitoring</h1>
       <p>Fastweb Infrastructure Monitoring — Informatica Platform</p>
     </div>
+    <a class="query-nav-btn" href="query.html"><i data-lucide="terminal" aria-hidden="true"></i><span>Query DB</span></a>
     <div class="header-time" id="header-time"></div>
   </div>
 </header>
 
 <main>
-  <section class="command-panel" id="command-panel">
-    <div class="command-panel-head">
-      <div>
-        <div class="command-kicker">Query assistita</div>
-        <h2>Chiedi alla dashboard</h2>
-        <p>Scrivi un comando autorizzato, ad esempio <button class="command-chip" type="button" data-command="stato edh">stato edh</button></p>
-      </div>
-      <div class="command-status" id="command-status">Backend locale</div>
-    </div>
-
-    <form class="command-form" id="command-form">
-      <input
-        id="command-input"
-        type="text"
-        autocomplete="off"
-        placeholder="Esempio: stato edh"
-      />
-      <button type="submit">Esegui</button>
-    </form>
-
-    <div class="command-result" id="command-result" hidden></div>
-  </section>
-
-  <div class="summary-grid" id="summary-grid">
+<div class="summary-grid" id="summary-grid">
     <div class="summary-skeleton"></div>
     <div class="summary-skeleton"></div>
     <div class="summary-skeleton"></div>

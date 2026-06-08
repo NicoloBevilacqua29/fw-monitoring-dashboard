@@ -282,7 +282,7 @@ function renderDB(db) {
         <div>
           <div class="edh-label">Uptime</div>
           <div class="edh-value">${formatUptime(node)}</div>
-        </div><
+        </div>
       </div>`;
   }).join("");
 
@@ -540,9 +540,7 @@ async function initHome() {
       <div class="sc-cta">Visualizza dettagli <span class="sc-arrow">→</span></div>
     </a>`;
 
-if (window.lucide) {
-  lucide.createIcons();
-}
+refreshIcons();
 
   // Dot header
   const dot = document.getElementById("header-dot");
@@ -822,6 +820,15 @@ function refreshIcons() {
   }
 }
 
+
+function initQuery() {
+  const footer = document.getElementById("footer");
+  if (footer) {
+    footer.textContent = "Console query collegata al backend locale Python";
+  }
+  refreshIcons();
+}
+
 // ── Router ────────────────────────────────────────────────────────────────────
 
 startClock();
@@ -832,4 +839,5 @@ if      (page === "ws.html")     initWS();
 else if (page === "cdc.html")    initCDC();
 else if (page === "db.html")     initDB();
 else if (page === "agents.html") initAgents();
+else if (page === "query.html")  initQuery();
 else                             initHome();

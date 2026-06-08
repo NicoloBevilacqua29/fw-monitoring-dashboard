@@ -782,3 +782,60 @@ header {
     transition-duration: .01ms !important;
   }
 }
+
+
+/* ── Query navigation button ─────────────────────────────────────────────── */
+.query-nav-btn {
+  order: 3;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--blue);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(96,165,250,.10);
+  border: 1px solid rgba(96,165,250,.25);
+  box-shadow: 0 8px 20px rgba(96,165,250,.08);
+  transition: transform .2s, border-color .2s, background .2s, color .2s;
+  white-space: nowrap;
+}
+
+.query-nav-btn:hover {
+  transform: translateY(-1px);
+  color: #93c5fd;
+  background: rgba(96,165,250,.15);
+  border-color: rgba(96,165,250,.42);
+}
+
+.query-nav-btn svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 2.4;
+}
+
+.query-page-main {
+  max-width: 1180px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.query-page-main .command-panel {
+  margin-bottom: 0;
+}
+
+@media (max-width: 760px) {
+  .query-nav-btn {
+    order: 4;
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+  }
+
+  .header-time {
+    margin-left: auto;
+  }
+}
