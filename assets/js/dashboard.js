@@ -290,6 +290,66 @@ function renderDB(db) {
   </div>`;
 }
 
+// ── Render Agents ─────────────────────────────────────────────────────────────
+
+function agentStatus(agent) {
+  if (!agent.active) return "DOWN";
+  if (!agent.readyToRun) return "WARNING";
+  return "UP";
+}
+
+function agentGlobalStatus(agents) {
+  if (!agents || agents.length === 0) return "DOWN";
+  const statuses = agents.map(agentStatus);
+  if (statuses.every(s => s === "UP")) return "UP";
+  if (statuses.some(s => s === "DOWN")) return "DOWN";
+  return "WARNING";
+}
+
+function formatAgentDate(isoStr) {
+  if (!isoStr) return "—";
+  try {
+    return new Date(isoStr).toLocaleString("it-IT");
+  } catch { return isoStr; }
+}
+
+function renderAgent(agent) {
+  const status = agentStatus(agent);
+  const cardClass = status === "UP" ? "" : status === "WARNING" ? "is-warn" : "is-down";
+  const icon = status === "UP" ? "↑" : status === "WARNING" ? "!" : "↓";
+  const badgeClass = status === "UP" ? "svc-up" : status === "WARNING" ? "svc-warn" : "svc-down";
+  const badgeLabel = status === "UP" ? "ATTIVO" : status === "WARNING" ? "NON PRONTO" : "INATTIVO";
+
+  return `
+  <div class="card ${cardClass}">
+    <div class="card-collapsed">
+      <div class="card-left">
+        <div class="status-ring ${ringClass(status)}">${icon}</div>
+        <div>
+          <div class="server-name">${agent.name || agent.agentHost || "Agent"}</div>
+          <div class="server-domain">${agent.agentHost || "—"}</div>
+        </div>
+      </div>
+      <div class="card-right">
+        <span class="svc-badge ${badgeClass}" style="font-size:11px">${badgeLabel}</span>
+        <div class="chevron">⌄</div>
+      </div>
+    </div>
+    <div class="card-details">
+      <div class="meta-row">
+        <div class="meta-chip">Versione <span>${agent.agentVersion || "—"}</span></div>
+        <div class="meta-chip">Platform <span>${agent.platform || "—"}</span></div>
+        <div class="meta-chip">Upgrade <span>${agent.upgradeStatus || "—"}</span></div>
+      </div>
+      <div class="meta-row">
+        <div class="meta-chip">Ultimo check <span>${formatAgentDate(agent.lastUpgradeCheck)}</span></div>
+        <div class="meta-chip">Ultimo cambio stato <span>${formatAgentDate(agent.lastStatusChange)}</span></div>
+      </div>
+      <div class="timestamp">Aggiornato: ${formatAgentDate(agent.updateTime)}</div>
+    </div>
+  </div>`;
+}
+
 // ── Clock ─────────────────────────────────────────────────────────────────────
 
 function startClock() {
@@ -323,11 +383,15 @@ async function initHome() {
   const wsFiles = ["as008pwc","as009pwc","as010pwc","as011pwc",
                    "as091pwc","as092pwc","as093pwc","as094pwc"];
 
-  const [wsData, cdcData, dbData] = await Promise.all([
+  const [wsData, cdcData, dbData, agentsRaw] = await Promise.all([
     Promise.all(wsFiles.map(h => loadJSON(`data/infa_ws_status_${h}.json`))).then(r => r.filter(Boolean)),
     Promise.all(CDC_FILES.map(f => loadJSON(`data/${f}.json`))).then(r => r.filter(Boolean)),
-    loadJSON("data/db_monitoring.json")
+    loadJSON("data/db_monitoring.json"),
+    loadJSON("data/report_finale.json")
   ]);
+
+  // Il JSON degli agent può essere un array o un oggetto singolo
+  const agentsData = Array.isArray(agentsRaw) ? agentsRaw : (agentsRaw ? [agentsRaw] : null);
 
   // Calcola stato globale WS
   const wsDown    = wsData.filter(x => wsStatus(x) !== "UP");
@@ -349,9 +413,16 @@ async function initHome() {
   const dbRawStatus = dbStatus(dbData);
   const dbGlobal = dbRawStatus === "UP" ? "up" : dbRawStatus === "WARNING" ? "warn" : "down";
 
+  // Calcola stato globale Agent
+  const agentRawStatus = agentGlobalStatus(agentsData);
+  const agentGlobal = agentRawStatus === "UP" ? "up" : agentRawStatus === "WARNING" ? "warn" : "down";
+  const agentActiveCount = agentsData ? agentsData.filter(a => agentStatus(a) === "UP").length : 0;
+  const agentTotal = agentsData ? agentsData.length : 0;
+
   const wsLabel  = wsGlobal === "up"  ? "Operativo" : "Anomalia rilevata";
   const cdcLabel = cdcGlobal === "up" ? "Operativo" : cdcGlobal === "warn" ? "Attenzione" : "Anomalia rilevata";
   const dbLabel  = dbGlobal === "up"  ? "Operativo" : dbGlobal === "warn" ? "Attenzione" : "Anomalia rilevata";
+  const agentLabel = agentGlobal === "up" ? "Operativo" : agentGlobal === "warn" ? "Attenzione" : !agentsData ? "Dati non disponibili" : "Anomalia rilevata";
 
   const wsDesc  = wsGlobal === "up"
     ? `Tutti i ${wsServers} server Informatica WebServiceHub sono raggiungibili e rispondono correttamente su tutte le porte monitorate.`
@@ -362,6 +433,12 @@ async function initHome() {
     : `${cdcStopWf} workflow su ${cdcTotalWf} risultano fermi. Verificare lo stato dei cluster CDC.`;
 
   const recentNodes = (dbData?.nodes || []).filter(isNodeRecentlyStarted);
+
+  const agentDesc = !agentsData
+    ? "Dati Agent non disponibili. Verificare la presenza del file data/report_finale.json."
+    : agentGlobal === "up"
+      ? `Tutti i ${agentTotal} agent Informatica Cloud sono attivi e pronti all'esecuzione.`
+      : `${agentTotal - agentActiveCount} agent su ${agentTotal} presentano anomalie. Verificare lo stato degli agent.`;
 
   const dbDesc = !dbData
     ? "Dati DB EDH non disponibili. Verificare la presenza del file data/db_monitoring.json."
@@ -374,6 +451,7 @@ async function initHome() {
   const wsIconMap  = { up: "✦", down: "✕" };
   const cdcIconMap = { up: "✦", down: "✕", warn: "!" };
   const dbIconMap  = { up: "✦", down: "✕", warn: "!" };
+  const agentIconMap = { up: "✦", down: "✕", warn: "!" };
 
   const grid = document.getElementById("summary-grid");
   grid.innerHTML = `
@@ -420,11 +498,26 @@ async function initHome() {
         <div class="sc-stat">Restart 24h <strong>${dbData?.restarted_last_24h ?? "N/D"}</strong></div>
       </div>
       <div class="sc-cta">Visualizza dettagli <span class="sc-arrow">→</span></div>
+    </a>
+
+    <a class="summary-card status-${agentGlobal}" href="agents.html">
+      <div class="sc-top">
+        <div class="sc-icon ${agentGlobal}">${agentIconMap[agentGlobal]}</div>
+        <span class="sc-badge ${agentGlobal}">${agentLabel}</span>
+      </div>
+      <div class="sc-title">Informatica Cloud Agent</div>
+      <div class="sc-desc">${agentDesc}</div>
+      <div class="sc-stats">
+        <div class="sc-stat">Agent attivi <strong>${agentActiveCount}/${agentTotal}</strong></div>
+        ${agentsData ? `<div class="sc-stat">Versione <strong>${agentsData[0]?.agentVersion ?? "—"}</strong></div>` : ""}
+        ${agentTotal - agentActiveCount > 0 ? `<div class="sc-stat" style="color:var(--red)">KO <strong>${agentTotal - agentActiveCount}</strong></div>` : ""}
+      </div>
+      <div class="sc-cta">Visualizza dettagli <span class="sc-arrow">→</span></div>
     </a>`;
 
   // Dot header
   const dot = document.getElementById("header-dot");
-  if (wsGlobal !== "up" || cdcGlobal !== "up" || dbGlobal !== "up") dot && dot.classList.add("has-down");
+  if (wsGlobal !== "up" || cdcGlobal !== "up" || dbGlobal !== "up" || agentGlobal !== "up") dot && dot.classList.add("has-down");
 
   document.getElementById("footer").textContent =
     "Dashboard aggiornata automaticamente da Outlook + GitHub";
@@ -531,12 +624,169 @@ async function initDB() {
     "Dashboard aggiornata automaticamente da Outlook + GitHub";
 }
 
+
+
+// ── Page: Informatica Cloud Agent detail ──────────────────────────────────────
+
+async function initAgents() {
+  const raw = await loadJSON("data/report_finale.json");
+  const agentsData = Array.isArray(raw) ? raw : (raw ? [raw] : null);
+  const status = agentGlobalStatus(agentsData);
+
+  const alerts = [];
+  if (!agentsData) {
+    alerts.push("Agent — file data/report_finale.json non disponibile");
+  } else {
+    agentsData.filter(a => agentStatus(a) !== "UP").forEach(a =>
+      alerts.push(`${a.name || a.agentHost} — ${agentStatus(a)}`)
+    );
+  }
+  setupAlerts(alerts);
+
+  const container = document.getElementById("agents-dashboard");
+  if (!container) return;
+
+  if (!agentsData) {
+    const section = createSection("AGENT", "dati non disponibili");
+    section.querySelector(".grid").innerHTML = `
+      <div class="card is-down">
+        <div class="card-collapsed">
+          <div class="card-left">
+            <div class="status-ring ring-down">↓</div>
+            <div>
+              <div class="server-name">Informatica Cloud Agent</div>
+              <div class="server-domain">File data/report_finale.json non trovato</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    container.appendChild(section);
+    return;
+  }
+
+  const activeCount = agentsData.filter(a => agentStatus(a) === "UP").length;
+  const section = createSection("AGENT", `${activeCount}/${agentsData.length} attivi`);
+  const grid = section.querySelector(".grid");
+  agentsData.forEach(a => addCard(grid, renderAgent(a)));
+  container.appendChild(section);
+
+  document.getElementById("footer").textContent =
+    "Dashboard aggiornata automaticamente da Outlook + GitHub";
+}
+
+
+// ── Command console ───────────────────────────────────────────────────────────
+
+const API_BASE = window.DASHBOARD_API_BASE || "http://127.0.0.1:5000";
+
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function renderCommandTable(rows) {
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return `<div class="command-empty">Nessun risultato trovato.</div>`;
+  }
+
+  const columns = Object.keys(rows[0]);
+
+  return `
+    <table class="command-table">
+      <thead>
+        <tr>${columns.map(c => `<th>${escapeHTML(c)}</th>`).join("")}</tr>
+      </thead>
+      <tbody>
+        ${rows.map(row => `
+          <tr>
+            ${columns.map(c => `<td>${escapeHTML(row[c])}</td>`).join("")}
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>`;
+}
+
+function setCommandResult(title, bodyHTML) {
+  const result = document.getElementById("command-result");
+  if (!result) return;
+
+  result.hidden = false;
+  result.innerHTML = `
+    <div class="command-result-header">
+      <span>${escapeHTML(title)}</span>
+      <span>${new Date().toLocaleTimeString("it-IT")}</span>
+    </div>
+    <div class="command-result-body">${bodyHTML}</div>`;
+}
+
+async function runDashboardCommand(command) {
+  setCommandResult("Esecuzione comando", `<div class="command-empty">Interrogo il backend...</div>`);
+
+  try {
+    const response = await fetch(`${API_BASE}/api/query`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ command })
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok || payload.ok === false) {
+      setCommandResult("Errore", `<div class="command-error">${escapeHTML(payload.error || "Comando non eseguito")}</div>`);
+      return;
+    }
+
+    setCommandResult(
+      `Risultato: ${payload.command || command}`,
+      renderCommandTable(payload.data)
+    );
+  } catch (error) {
+    setCommandResult(
+      "Backend non raggiungibile",
+      `<div class="command-error">Impossibile contattare ${escapeHTML(API_BASE)}. Verifica che Flask sia avviato.</div>`
+    );
+  }
+}
+
+function setupCommandConsole() {
+  const form = document.getElementById("command-form");
+  const input = document.getElementById("command-input");
+  const chips = document.querySelectorAll("[data-command]");
+
+  if (!form || !input) return;
+
+  chips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      input.value = chip.dataset.command || "";
+      input.focus();
+    });
+  });
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    const command = input.value.trim();
+
+    if (!command) {
+      setCommandResult("Comando vuoto", `<div class="command-error">Inserisci un comando, ad esempio: stato edh</div>`);
+      return;
+    }
+
+    runDashboardCommand(command);
+  });
+}
+
 // ── Router ────────────────────────────────────────────────────────────────────
 
 startClock();
+setupCommandConsole();
 
 const page = location.pathname.split("/").pop() || "index.html";
-if      (page === "ws.html")  initWS();
-else if (page === "cdc.html") initCDC();
-else if (page === "db.html")  initDB();
-else                          initHome();
+if      (page === "ws.html")     initWS();
+else if (page === "cdc.html")    initCDC();
+else if (page === "db.html")     initDB();
+else if (page === "agents.html") initAgents();
+else                             initHome();

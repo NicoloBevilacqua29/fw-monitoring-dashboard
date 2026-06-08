@@ -20,6 +20,29 @@
 </header>
 
 <main>
+  <section class="command-panel" id="command-panel">
+    <div class="command-panel-head">
+      <div>
+        <div class="command-kicker">Query assistita</div>
+        <h2>Chiedi alla dashboard</h2>
+        <p>Scrivi un comando autorizzato, ad esempio <button class="command-chip" type="button" data-command="stato edh">stato edh</button></p>
+      </div>
+      <div class="command-status" id="command-status">Backend locale</div>
+    </div>
+
+    <form class="command-form" id="command-form">
+      <input
+        id="command-input"
+        type="text"
+        autocomplete="off"
+        placeholder="Esempio: stato edh"
+      />
+      <button type="submit">Esegui</button>
+    </form>
+
+    <div class="command-result" id="command-result" hidden></div>
+  </section>
+
   <div class="summary-grid" id="summary-grid">
     <div class="summary-skeleton"></div>
     <div class="summary-skeleton"></div>

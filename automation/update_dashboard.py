@@ -18,6 +18,7 @@ MAIL_SUBJECTS = [
     "[External] Informatica WebServiceHub status - as008pwc",
     "[External] Informatica CDC status - as008pwc",
     "[External] DB EDH Monitoring JSON",
+    "[External] Report Cluster Informatica (Filtrato)",
 ]
 
 
@@ -56,6 +57,18 @@ def normalize_json_file(file_path):
         r'\1null,',
         content
     )
+
+    # Report Agents: sequenza di oggetti JSON separati da newline -> array JSON
+    # Es: {...}\n{...} oppure {...}\n{...}]  ->  [{...},{...}]
+    stripped = content.strip().rstrip("]").strip()
+    if stripped.startswith("{"):
+        # Uno o più oggetti JSON su righe separate, non racchiusi in array
+        objects = re.split(r'}\s*\n\s*{', stripped)
+        if len(objects) > 1:
+            content = "[{" + "},{".join(o.strip().strip("{").strip("}") for o in objects) + "}]"
+        elif not content.strip().startswith("["):
+            # Singolo oggetto: wrappalo in array per uniformità
+            content = "[" + content.strip() + "]"
 
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(content)
