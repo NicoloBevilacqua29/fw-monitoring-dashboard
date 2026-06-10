@@ -1,4 +1,4 @@
-{
+[{
   "cluster": "CDC102",
   "version": "10.2 HOTFIX",
   "primary": "as013pwc",
@@ -11,7 +11,7 @@
   "cdc_running": 13,
   "cdc_stopped": 0,
   "cdc_total": 13,
-  "timestamp": "2026-06-08 10:14:00",
+  "timestamp": "2026-06-10 12:04:42",
   "cdc": [
     {"name":"wf_m_OML_to_OML_STG","status":"RUNNING","running_host":"as013pwc","pid":32488},
     {"name":"wf_m_OML_to_SRL_STG","status":"RUNNING","running_host":"as013pwc","pid":529},
@@ -27,4 +27,4 @@
     {"name":"WF_TTSRECLA_CDC_TMP","status":"RUNNING","running_host":"as014pwc","pid":26432},
     {"name":"WF_MRM_CDC","status":"RUNNING","running_host":"as014pwc","pid":15323}
   ]
-}
+}]

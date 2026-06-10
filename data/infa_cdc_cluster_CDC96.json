@@ -1,4 +1,4 @@
-{
+[{
   "cluster": "CDC96",
   "version": "9.6",
   "primary": "as003pwc",
@@ -11,7 +11,7 @@
   "cdc_running": 10,
   "cdc_stopped": 0,
   "cdc_total": 10,
-  "timestamp": "2026-06-08 10:12:27",
+  "timestamp": "2026-06-10 12:02:56",
   "cdc": [
     {"name":"WF_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":8138},
     {"name":"WF_GRN_NGN_GPON_CDC","status":"RUNNING","running_host":"as004pwc","pid":8000},
@@ -24,4 +24,4 @@
     {"name":"WF_OSS_TRANSFORMATION_CDC_NDS","status":"RUNNING","running_host":"as004pwc","pid":6359},
     {"name":"WF_OSS_TRANSFORMATION_CDC_OLOGW","status":"RUNNING","running_host":"as004pwc","pid":5849}
   ]
-}
+}]
