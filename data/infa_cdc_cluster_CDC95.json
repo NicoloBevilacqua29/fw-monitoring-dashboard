@@ -11,7 +11,7 @@
   "cdc_running": 6,
   "cdc_stopped": 0,
   "cdc_total": 6,
-  "timestamp": "2026-06-12 09:50:33",
+  "timestamp": "2026-06-12 10:00:40",
   "cdc": [
     {"name":"wf_m_INVOICE_to_ODHE_SRC","status":"RUNNING","running_host":"as001pwc","pid":4456},
     {"name":"wf_m_OMC_to_ODHE_SRC","status":"RUNNING","running_host":"as002pwc","pid":17092},
