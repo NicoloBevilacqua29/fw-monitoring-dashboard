@@ -1,7 +1,7 @@
 {
   "host": "as008pwc",
   "domain": "as008pwc.intranet.fw",
-  "timestamp": "2026-06-12 16:25:23",
+  "timestamp": "2026-06-12 16:34:26",
   "ssh_status": "LOCAL",
   "informatica_process_status": "UP",
   "catalina_process_count": 4,
