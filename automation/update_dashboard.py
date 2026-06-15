@@ -58,20 +58,38 @@ def normalize_json_file(file_path):
         content
     )
 
-    # Report Agents: sequenza di oggetti JSON separati da newline -> array JSON
-    # Es: {...}\n{...} oppure {...}\n{...}]  ->  [{...},{...}]
-    stripped = content.strip().rstrip("]").strip()
-    if stripped.startswith("{"):
-        # Uno o più oggetti JSON su righe separate, non racchiusi in array
-        objects = re.split(r'}\s*\n\s*{', stripped)
-        if len(objects) > 1:
-            content = "[{" + "},{".join(o.strip().strip("{").strip("}") for o in objects) + "}]"
-        elif not content.strip().startswith("["):
-            # Singolo oggetto: wrappalo in array per uniformità
-            content = "[" + content.strip() + "]"
+    filename = os.path.basename(file_path).lower()
+
+    # SOLO report_finale.json deve essere array, perché agents.html legge una lista di agent
+    if filename.startswith("report_finale"):
+        stripped = content.strip().rstrip("]").strip()
+
+        if stripped.startswith("{"):
+            objects = re.split(r'}\s*\n\s*{', stripped)
+
+            if len(objects) > 1:
+                content = "[{" + "},{".join(
+                    o.strip().strip("{").strip("}") for o in objects
+                ) + "}]"
+            elif not content.strip().startswith("["):
+                content = "[" + content.strip() + "]"
+
+    else:
+        # WS / CDC / DB devono restare oggetti singoli.
+        # Se per errore sono array con un solo oggetto, li spacchetta.
+        stripped = content.strip()
+
+        if stripped.startswith("[") and stripped.endswith("]"):
+            import json
+            try:
+                data = json.loads(stripped)
+                if isinstance(data, list) and len(data) == 1 and isinstance(data[0], dict):
+                    content = json.dumps(data[0], ensure_ascii=False, indent=2)
+            except Exception:
+                pass
 
     with open(file_path, "w", encoding="utf-8") as f:
-        f.write(content)
+        f.write(content.strip() + "\n")
 
 
 def is_valid_json(file_path):
@@ -182,6 +200,12 @@ def download_json_from_outlook():
 
         new_processed_ids.add(mail_id)
         processed_new_mail = True
+
+        try:
+            latest_message.Delete()
+            print("Mail eliminata (spostata nel Cestino).")
+        except Exception as e:
+            print(f"  Errore durante l'eliminazione della mail: {e}")
 
     save_processed_ids(new_processed_ids)
 

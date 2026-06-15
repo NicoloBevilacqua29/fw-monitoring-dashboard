@@ -173,7 +173,7 @@ function renderCDC(cluster) {
 
   const catChips = Object.entries(cluster.catalina || {}).map(([host, info]) => `
     <div class="meta-chip">
-      Catalina <b style="margin-left:4px">${host}</b>
+      Server <b style="margin-left:4px">${host}</b>
       <span class="svc-badge ${info.status === "UP" ? "svc-up" : "svc-down"}" style="margin-left:6px">${info.status}</span>
     </div>`).join("");
 
@@ -485,7 +485,7 @@ async function initHome() {
         <div class="sc-icon ${wsGlobal}">${dashboardIconMap.ws}</div>
         <span class="sc-badge ${wsGlobal}">${wsLabel}</span>
       </div>
-      <div class="sc-title">Catalina & WebServiceHub</div>
+      <div class="sc-title">Server & WebServiceHub</div>
       <div class="sc-desc">${wsDesc}</div>
       <div class="sc-stats">
         <div class="sc-stat">Server <strong>${wsOkCount}/${wsServers}</strong></div>
@@ -500,7 +500,7 @@ async function initHome() {
         <div class="sc-icon ${cdcGlobal}">${dashboardIconMap.cdc}</div>
         <span class="sc-badge ${cdcGlobal}">${cdcLabel}</span>
       </div>
-      <div class="sc-title">Catalina & CDC</div>
+      <div class="sc-title">Server & CDC</div>
       <div class="sc-desc">${cdcDesc}</div>
       <div class="sc-stats">
         <div class="sc-stat">Workflow attivi <strong>${cdcRunWf}/${cdcTotalWf}</strong></div>
