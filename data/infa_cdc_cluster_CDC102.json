@@ -11,7 +11,7 @@
   "cdc_running": 13,
   "cdc_stopped": 0,
   "cdc_total": 13,
-  "timestamp": "2026-06-18 12:50:05",
+  "timestamp": "2026-06-18 13:00:09",
   "cdc": [
     {"name":"wf_m_OML_to_OML_STG","status":"RUNNING","running_host":"as013pwc","pid":32488},
     {"name":"wf_m_OML_to_SRL_STG","status":"RUNNING","running_host":"as013pwc","pid":529},
