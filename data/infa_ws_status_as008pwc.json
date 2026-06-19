@@ -1,7 +1,7 @@
 {
   "host": "as008pwc",
   "domain": "as008pwc.intranet.fw",
-  "timestamp": "2026-06-19 22:30:11",
+  "timestamp": "2026-06-19 22:40:08",
   "ssh_status": "LOCAL",
   "informatica_process_status": "UP",
   "catalina_process_count": 4,
@@ -19,8 +19,8 @@
     {
       "port": 7335,
       "protocol": "http",
-      "status": "UP",
-      "recv_q": 0,
+      "status": "STARTING",
+      "recv_q": 1,
       "send_q": 100,
       "pid": 20135,
       "http_code": 200,
