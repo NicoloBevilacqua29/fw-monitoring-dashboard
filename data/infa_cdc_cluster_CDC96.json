@@ -5,13 +5,13 @@
   "secondary": "as004pwc",
   "cluster_status": "UP",
   "catalina": {
-    "as003pwc": {"status": "UP", "count": 3},
+    "as003pwc": {"status": "UP", "count": 2},
     "as004pwc": {"status": "UP", "count": 1}
   },
   "cdc_running": 10,
   "cdc_stopped": 0,
   "cdc_total": 10,
-  "timestamp": "2026-06-25 22:30:06",
+  "timestamp": "2026-06-25 22:40:04",
   "cdc": [
     {"name":"WF_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":1578},
     {"name":"WF_GRN_NGN_GPON_CDC","status":"RUNNING","running_host":"as004pwc","pid":2225},
