@@ -11,7 +11,7 @@
   "cdc_running": 10,
   "cdc_stopped": 0,
   "cdc_total": 10,
-  "timestamp": "2026-06-26 03:20:04",
+  "timestamp": "2026-06-26 03:30:06",
   "cdc": [
     {"name":"WF_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":1578},
     {"name":"WF_GRN_NGN_GPON_CDC","status":"RUNNING","running_host":"as004pwc","pid":2225},
