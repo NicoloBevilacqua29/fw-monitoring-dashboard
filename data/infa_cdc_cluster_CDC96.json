@@ -11,7 +11,7 @@
   "cdc_running": 0,
   "cdc_stopped": 10,
   "cdc_total": 10,
-  "timestamp": "2026-07-07 18:50:03",
+  "timestamp": "2026-07-07 19:00:06",
   "cdc": [
     {"name":"WF_GRN_CDC","status":"KO","running_host":"","pid":null},
     {"name":"WF_GRN_NGN_GPON_CDC","status":"KO","running_host":"","pid":null},
