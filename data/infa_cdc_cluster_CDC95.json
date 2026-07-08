@@ -6,12 +6,12 @@
   "cluster_status": "DOWN",
   "catalina": {
     "as001pwc": {"status": "UP", "count": 10},
-    "as002pwc": {"status": "UP", "count": 3}
+    "as002pwc": {"status": "UP", "count": 4}
   },
   "cdc_running": 2,
   "cdc_stopped": 4,
   "cdc_total": 6,
-  "timestamp": "2026-07-09 00:50:02",
+  "timestamp": "2026-07-09 01:00:02",
   "cdc": [
     {"name":"wf_m_INVOICE_to_ODHE_SRC","status":"KO","running_host":"","pid":null},
     {"name":"wf_m_OMC_to_ODHE_SRC","status":"KO","running_host":"","pid":null},
