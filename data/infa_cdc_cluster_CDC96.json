@@ -3,18 +3,18 @@
   "version": "9.6",
   "primary": "as003pwc",
   "secondary": "as004pwc",
-  "cluster_status": "DOWN",
+  "cluster_status": "UP",
   "catalina": {
     "as003pwc": {"status": "UP", "count": 2},
     "as004pwc": {"status": "UP", "count": 1}
   },
-  "cdc_running": 8,
-  "cdc_stopped": 2,
+  "cdc_running": 10,
+  "cdc_stopped": 0,
   "cdc_total": 10,
-  "timestamp": "2026-07-10 10:30:07",
+  "timestamp": "2026-07-10 10:40:04",
   "cdc": [
     {"name":"WF_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":21849},
-    {"name":"WF_GRN_NGN_GPON_CDC","status":"KO","running_host":"","pid":null},
+    {"name":"WF_GRN_NGN_GPON_CDC","status":"RUNNING","running_host":"as004pwc","pid":18647},
     {"name":"WF_OLOGW_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":23425},
     {"name":"WF_TED_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":24146},
     {"name":"WF_GRNENT_CDC","status":"RUNNING","running_host":"as004pwc","pid":10227},
@@ -22,6 +22,6 @@
     {"name":"WF_OSS_OLO2OLO_CDC","status":"RUNNING","running_host":"as004pwc","pid":25528},
     {"name":"WF_OSS_TRANSFORMATION_CDC","status":"RUNNING","running_host":"as004pwc","pid":25899},
     {"name":"WF_OSS_TRANSFORMATION_CDC_NDS","status":"RUNNING","running_host":"as004pwc","pid":26059},
-    {"name":"WF_OSS_TRANSFORMATION_CDC_OLOGW","status":"KO","running_host":"","pid":null}
+    {"name":"WF_OSS_TRANSFORMATION_CDC_OLOGW","status":"RUNNING","running_host":"as004pwc","pid":6632}
   ]
 }
