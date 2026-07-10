@@ -11,7 +11,7 @@
   "cdc_running": 13,
   "cdc_stopped": 0,
   "cdc_total": 13,
-  "timestamp": "2026-07-09 17:50:05",
+  "timestamp": "2026-07-10 10:10:06",
   "cdc": [
     {"name":"wf_m_OML_to_OML_STG","status":"RUNNING","running_host":"as013pwc","pid":4419},
     {"name":"wf_m_OML_to_SRL_STG","status":"RUNNING","running_host":"as014pwc","pid":9329},
@@ -19,7 +19,7 @@
     {"name":"WF_CDC_ORDINE_NETDB","status":"RUNNING","running_host":"as013pwc","pid":4091},
     {"name":"WF_CDC_OTHER_NETDB","status":"RUNNING","running_host":"as014pwc","pid":18557},
     {"name":"WF_CONFRETE_CDC","status":"RUNNING","running_host":"as014pwc","pid":24650},
-    {"name":"WF_EDH_BWE_CDC","status":"RUNNING","running_host":"as013pwc","pid":11287},
+    {"name":"WF_EDH_BWE_CDC","status":"RUNNING","running_host":"as013pwc","pid":19344},
     {"name":"wf_SP_CDC","status":"RUNNING","running_host":"as014pwc","pid":22221},
     {"name":"WF_TTS_CDC","status":"RUNNING","running_host":"BOTH","pid":22759},
     {"name":"WF_TTS_CDC_DQ","status":"RUNNING","running_host":"as013pwc","pid":26114},
