@@ -11,7 +11,7 @@
   "cdc_running": 10,
   "cdc_stopped": 0,
   "cdc_total": 10,
-  "timestamp": "2026-07-16 08:20:04",
+  "timestamp": "2026-07-16 09:20:04",
   "cdc": [
     {"name":"WF_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":21849},
     {"name":"WF_GRN_NGN_GPON_CDC","status":"RUNNING","running_host":"as004pwc","pid":18647},
@@ -22,6 +22,6 @@
     {"name":"WF_OSS_OLO2OLO_CDC","status":"RUNNING","running_host":"as004pwc","pid":25528},
     {"name":"WF_OSS_TRANSFORMATION_CDC","status":"RUNNING","running_host":"as004pwc","pid":25899},
     {"name":"WF_OSS_TRANSFORMATION_CDC_NDS","status":"RUNNING","running_host":"as004pwc","pid":26059},
-    {"name":"WF_OSS_TRANSFORMATION_CDC_OLOGW","status":"RUNNING","running_host":"as004pwc","pid":6632}
+    {"name":"WF_OSS_TRANSFORMATION_CDC_OLOGW","status":"RUNNING","running_host":"as004pwc","pid":24339}
   ]
 }
