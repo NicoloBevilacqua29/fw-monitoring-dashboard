@@ -5,19 +5,19 @@
   "secondary": "as002pwc",
   "cluster_status": "UP",
   "catalina": {
-    "as001pwc": {"status": "UP", "count": 11},
-    "as002pwc": {"status": "UP", "count": 3}
+    "as001pwc": {"status": "UP", "count": 9},
+    "as002pwc": {"status": "UP", "count": 4}
   },
   "cdc_running": 6,
   "cdc_stopped": 0,
   "cdc_total": 6,
-  "timestamp": "2026-07-20 15:20:02",
+  "timestamp": "2026-07-21 14:00:03",
   "cdc": [
-    {"name":"wf_m_INVOICE_to_ODHE_SRC","status":"RUNNING","running_host":"as001pwc","pid":16654},
-    {"name":"wf_m_OMC_to_ODHE_SRC","status":"RUNNING","running_host":"as001pwc","pid":18036},
-    {"name":"wf_m_OMC_to_OMC_STG","status":"RUNNING","running_host":"as002pwc","pid":4066},
-    {"name":"wf_m_OMC_to_SRC_STG","status":"RUNNING","running_host":"as002pwc","pid":11508},
-    {"name":"wf_m_OMF_to_ODHE_SRC","status":"RUNNING","running_host":"as001pwc","pid":14803},
-    {"name":"wf_m_OMF_to_OMF_STG","status":"RUNNING","running_host":"as001pwc","pid":11494}
+    {"name":"wf_m_INVOICE_to_ODHE_SRC","status":"RUNNING","running_host":"as002pwc","pid":10511},
+    {"name":"wf_m_OMC_to_ODHE_SRC","status":"RUNNING","running_host":"as001pwc","pid":29490},
+    {"name":"wf_m_OMC_to_OMC_STG","status":"RUNNING","running_host":"as002pwc","pid":10734},
+    {"name":"wf_m_OMC_to_SRC_STG","status":"RUNNING","running_host":"as001pwc","pid":29868},
+    {"name":"wf_m_OMF_to_ODHE_SRC","status":"RUNNING","running_host":"as002pwc","pid":10843},
+    {"name":"wf_m_OMF_to_OMF_STG","status":"RUNNING","running_host":"as001pwc","pid":29913}
   ]
 }
