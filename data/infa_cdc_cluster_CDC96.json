@@ -5,23 +5,23 @@
   "secondary": "as004pwc",
   "cluster_status": "UP",
   "catalina": {
-    "as003pwc": {"status": "UP", "count": 2},
+    "as003pwc": {"status": "UP", "count": 1},
     "as004pwc": {"status": "UP", "count": 2}
   },
   "cdc_running": 10,
   "cdc_stopped": 0,
   "cdc_total": 10,
-  "timestamp": "2026-07-27 08:00:07",
+  "timestamp": "2026-08-03 10:40:05",
   "cdc": [
-    {"name":"WF_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":3275},
-    {"name":"WF_GRN_NGN_GPON_CDC","status":"RUNNING","running_host":"as004pwc","pid":5000},
-    {"name":"WF_OLOGW_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":20579},
-    {"name":"WF_TED_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":3882},
-    {"name":"WF_GRNENT_CDC","status":"RUNNING","running_host":"as004pwc","pid":10979},
-    {"name":"WF_OSS_GPON_STS_CDC","status":"RUNNING","running_host":"as004pwc","pid":8418},
-    {"name":"WF_OSS_OLO2OLO_CDC","status":"RUNNING","running_host":"as004pwc","pid":9681},
-    {"name":"WF_OSS_TRANSFORMATION_CDC","status":"RUNNING","running_host":"as004pwc","pid":11297},
-    {"name":"WF_OSS_TRANSFORMATION_CDC_NDS","status":"RUNNING","running_host":"as004pwc","pid":12280},
-    {"name":"WF_OSS_TRANSFORMATION_CDC_OLOGW","status":"RUNNING","running_host":"as004pwc","pid":13303}
+    {"name":"WF_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":14828},
+    {"name":"WF_GRN_NGN_GPON_CDC","status":"RUNNING","running_host":"as004pwc","pid":26887},
+    {"name":"WF_OLOGW_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":15819},
+    {"name":"WF_TED_GRN_CDC","status":"RUNNING","running_host":"as004pwc","pid":12957},
+    {"name":"WF_GRNENT_CDC","status":"RUNNING","running_host":"as004pwc","pid":18492},
+    {"name":"WF_OSS_GPON_STS_CDC","status":"RUNNING","running_host":"as004pwc","pid":7854},
+    {"name":"WF_OSS_OLO2OLO_CDC","status":"RUNNING","running_host":"as004pwc","pid":27774},
+    {"name":"WF_OSS_TRANSFORMATION_CDC","status":"RUNNING","running_host":"as004pwc","pid":30313},
+    {"name":"WF_OSS_TRANSFORMATION_CDC_NDS","status":"RUNNING","running_host":"as004pwc","pid":30867},
+    {"name":"WF_OSS_TRANSFORMATION_CDC_OLOGW","status":"RUNNING","running_host":"as004pwc","pid":5116}
   ]
 }

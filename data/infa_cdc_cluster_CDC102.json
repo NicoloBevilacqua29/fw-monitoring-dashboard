@@ -11,7 +11,7 @@
   "cdc_running": 13,
   "cdc_stopped": 0,
   "cdc_total": 13,
-  "timestamp": "2026-07-27 08:00:09",
+  "timestamp": "2026-08-03 10:40:06",
   "cdc": [
     {"name":"wf_m_OML_to_OML_STG","status":"RUNNING","running_host":"as013pwc","pid":4419},
     {"name":"wf_m_OML_to_SRL_STG","status":"RUNNING","running_host":"as014pwc","pid":9329},
@@ -20,11 +20,11 @@
     {"name":"WF_CDC_OTHER_NETDB","status":"RUNNING","running_host":"as014pwc","pid":13210},
     {"name":"WF_CONFRETE_CDC","status":"RUNNING","running_host":"as014pwc","pid":24650},
     {"name":"WF_EDH_BWE_CDC","status":"RUNNING","running_host":"as013pwc","pid":20016},
-    {"name":"wf_SP_CDC","status":"RUNNING","running_host":"as014pwc","pid":22221},
-    {"name":"WF_TTS_CDC","status":"RUNNING","running_host":"BOTH","pid":31683},
-    {"name":"WF_TTS_CDC_DQ","status":"RUNNING","running_host":"as014pwc","pid":25527},
-    {"name":"WF_TTSLA_CDC","status":"RUNNING","running_host":"as013pwc","pid":5006},
-    {"name":"WF_TTSRECLA_CDC_TMP","status":"RUNNING","running_host":"as014pwc","pid":30002},
+    {"name":"wf_SP_CDC","status":"RUNNING","running_host":"as014pwc","pid":25361},
+    {"name":"WF_TTS_CDC","status":"RUNNING","running_host":"BOTH","pid":6222},
+    {"name":"WF_TTS_CDC_DQ","status":"RUNNING","running_host":"as013pwc","pid":6335},
+    {"name":"WF_TTSLA_CDC","status":"RUNNING","running_host":"as014pwc","pid":18001},
+    {"name":"WF_TTSRECLA_CDC_TMP","status":"RUNNING","running_host":"as013pwc","pid":4319},
     {"name":"WF_MRM_CDC","status":"RUNNING","running_host":"as014pwc","pid":15323}
   ]
 }
