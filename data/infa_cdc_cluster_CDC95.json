@@ -11,12 +11,12 @@
   "cdc_running": 6,
   "cdc_stopped": 0,
   "cdc_total": 6,
-  "timestamp": "2026-07-25 00:20:02",
+  "timestamp": "2026-08-10 01:10:02",
   "cdc": [
     {"name":"wf_m_INVOICE_to_ODHE_SRC","status":"RUNNING","running_host":"as002pwc","pid":10511},
-    {"name":"wf_m_OMC_to_ODHE_SRC","status":"RUNNING","running_host":"as001pwc","pid":29490},
-    {"name":"wf_m_OMC_to_OMC_STG","status":"RUNNING","running_host":"as002pwc","pid":10734},
-    {"name":"wf_m_OMC_to_SRC_STG","status":"RUNNING","running_host":"as001pwc","pid":29868},
+    {"name":"wf_m_OMC_to_ODHE_SRC","status":"RUNNING","running_host":"as001pwc","pid":14437},
+    {"name":"wf_m_OMC_to_OMC_STG","status":"RUNNING","running_host":"as002pwc","pid":19673},
+    {"name":"wf_m_OMC_to_SRC_STG","status":"RUNNING","running_host":"as001pwc","pid":15517},
     {"name":"wf_m_OMF_to_ODHE_SRC","status":"RUNNING","running_host":"as002pwc","pid":10843},
     {"name":"wf_m_OMF_to_OMF_STG","status":"RUNNING","running_host":"as001pwc","pid":29913}
   ]
