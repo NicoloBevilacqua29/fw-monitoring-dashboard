@@ -1,7 +1,7 @@
 {
   "host": "as094pwc",
   "domain": "as094pwc.intranet.fw",
-  "timestamp": "2026-08-10 09:10:15",
+  "timestamp": "2026-11-11 13:30:15",
   "ssh_status": "OK",
   "informatica_process_status": "UP",
   "catalina_process_count": 4,
@@ -12,7 +12,7 @@
       "status": "UP",
       "recv_q": 0,
       "send_q": 100,
-      "pid": 436,
+      "pid": 25332,
       "http_code": 200,
       "url": "http://as094pwc.intranet.fw:7333/wsh/"
     }    ,
@@ -22,7 +22,7 @@
       "status": "UP",
       "recv_q": 0,
       "send_q": 100,
-      "pid": 13845,
+      "pid": 26585,
       "http_code": 200,
       "url": "http://as094pwc.intranet.fw:7335/wsh/"
     }    ,
@@ -32,7 +32,7 @@
       "status": "UP",
       "recv_q": 0,
       "send_q": 100,
-      "pid": 21014,
+      "pid": 27420,
       "http_code": 200,
       "url": "http://as094pwc.intranet.fw:7337/wsh/"
     }    ,
@@ -42,7 +42,7 @@
       "status": "UP",
       "recv_q": 0,
       "send_q": 100,
-      "pid": 28511,
+      "pid": 28897,
       "http_code": 200,
       "url": "https://as094pwc.intranet.fw:7338/wsh/"
     }
